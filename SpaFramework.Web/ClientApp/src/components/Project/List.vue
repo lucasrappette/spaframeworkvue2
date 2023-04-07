@@ -81,7 +81,7 @@ export default {
         getDefaultFilter: function () {
           return '';
         },
-        includes: [],
+        includes: ['client'],
         viewStorageName: '/client:project'
       }
     }

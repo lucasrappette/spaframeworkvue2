@@ -17,6 +17,14 @@
           <b-nav-item v-if="isContentManager" to="/contentBlock">Content</b-nav-item>
         </b-navbar-nav>
 
+        <b-nav-text v-if="environment != 'prod'" id="dev-site-warning">
+          <div class="navbar-warning"><b-icon icon="exclamation-triangle-fill" /> Dev Site</div>
+        </b-nav-text>
+        <b-popover target="dev-site-warning" triggers="hover" placement="bottom">
+          <template #title>Dev Site</template>
+          <b>This is not real data.</b> This is a dev/sandbox/test site, not the production site.
+        </b-popover>
+          
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
 
@@ -42,7 +50,7 @@
             <b-dropdown-item href="/documentation" target="_blank">Data Documentation</b-dropdown-item>
           </b-nav-item-dropdown>
 
-          <b-nav-item right v-b-modal.modalTestingHelpers><b-icon icon="easel" />Testing Helpers</b-nav-item>
+          <b-nav-item v-if="showTestingHelpers" right v-b-modal.modalTestingHelpers><b-icon icon="easel" />Testing Helpers</b-nav-item>
 
           <b-nav-item-dropdown right>
             <template slot="button-content">
@@ -89,9 +97,15 @@ export default {
   },
   computed: {
     ...mapState('cachedData', ['agentStates']),
-    ...mapGetters('auth', ['isAuthenticated', 'authenticatedUsername', 'authenticatedUserId', 'isSuperAdmin', 'isProjectManager', 'isProjectViewer', 'isContentManager']),
+    ...mapGetters('auth', ['isAuthenticated', 'authenticatedUsername', 'authenticatedUserId', 'isSuperAdmin', 'isProjectManager', 'isProjectViewer', 'isContentManager', 'isJwtExpired']),
     routerViewKey: function () {
       return this.$route.fullPath;
+    },
+    environment: function () {
+      return process.env.VUE_APP_ENVIRONMENT;
+    },
+    showTestingHelpers: function () {
+      return this.environment != 'prod';
     },
   },
   methods: {
@@ -103,6 +117,8 @@ export default {
       this.$bvToast.toast(text, options);
     },
     init: function () {
+      this.$store.dispatch('cachedData/loadCachedData');
+
       this.$store.subscribe((mutation, state) => {
         if (mutation.type == 'auth/PROCESS_LOG_IN') {
           this.startConnection();
@@ -113,6 +129,12 @@ export default {
 
       if (this.$store.state.auth.jwt) {
         this.startConnection();
+      }
+      if (this.isJwtExpired) {
+        this.showToast('Your session may have expired. You may need to log out and back in.', {
+          title: 'Session Expired',
+          variant: 'warning'
+        });
       }
     },
     stopConnection: async function () {
@@ -154,7 +176,7 @@ export default {
       }
     }
   },
-  mounted() {
+  created() {
     this.init();
     //this.checkForAuth();
   }

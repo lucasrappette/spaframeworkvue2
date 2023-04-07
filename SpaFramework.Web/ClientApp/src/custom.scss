@@ -1,19 +1,19 @@
 // Import custom font from Google
 //@import url('https://fonts.googleapis.com/css?family=Spectral:400,400i,700');
 //@import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700');
+@import url('https://fonts.googleapis.com/css?family=Muli:400,400i,700');
 @import url('https://fonts.googleapis.com/css?family=Chivo:400,400i,700');
 
 // Override / set color variables
 $white: #fff;
 $black: #333;
 //$green: #429e1e;
-$green: #3f971c;
+$green: #2b6d11;
 //$blue: #107ab8;
-$blue: #0c71ac;
-$orange: #FF7E67;
-$yellow: #A2D5F2;
-$red: #F67280;
+$blue: #1a597e;
+$orange: #df5119;
+$yellow: #faf095;
+$red: #d41528;
 
 // Create grayscale
 $gray-dark: #292b2c;
@@ -24,7 +24,7 @@ $gray-lightest: #fafafa;
 
 // Set brand colors
 $primary: $green;
-//$secondary: $blue;
+//$secondary: $gray;
 $success: $green;
 $info: $yellow;
 $warning: $orange;
@@ -57,9 +57,11 @@ $badge-font-weight: normal;
 //$font-family-sans-serif: 'Roboto', sans-serif;
 //$font-family-serif: 'Spectral', Georgia, 'Times New Roman', Times, serif;
 $font-family-sans-serif: 'Chivo', sans-serif;
-$font-family-serif: 'Roboto', Arial, 'Helvetica Neue', sans-serif;
+$font-family-serif: 'Muli', Arial, 'Helvetica Neue', sans-serif;
 $font-family-monospace: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 $font-family-base: $font-family-serif;
+
+$font-size-base: 0.9rem;
 
 // Set global options
 $enable-shadows: false;
@@ -125,7 +127,7 @@ fieldset.form-group legend {
 }
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .3s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
@@ -382,7 +384,7 @@ table.table thead th fieldset.form-group {
   margin: 0;
 }
 
-table.table thead th fieldset.form-group div.b-form-tags {
+table.table thead th fieldset.form-group div.b-form-tags.multiselect {
   padding: 0;
   border: 0;
 }
@@ -538,3 +540,55 @@ input.floating-label:active, textarea.floating-label:active, select.floating-lab
   color: rgba(255, 255, 255, .3);
 }
 
+.navbar-warning {
+  background-color: darken($danger, 0);
+  color: $gray-lightest;
+  padding: 6px 26px;
+  margin-left: 12px;
+}
+
+.nav .nav-item .nav-link.disabled {
+  color: lighten($gray-light, 30);
+}
+
+.scripted-content {
+  background-color: #f7f6e6;
+}
+
+.scripted-content blockquote {
+  background-color: #fff;
+  margin-bottom: 0;
+}
+
+.scripted-content p {
+  padding: 6px 4px;
+  margin: 0;
+}
+
+pre {
+  background-color: $gray-lighter;
+}
+.navbar.bg-dark .b-dropdown-form input[type="text"] {
+  color: #495057;
+}
+
+.b-dropdown-form {
+  min-width: 240px;
+}
+
+.pivot-table-header {
+  text-align: right;
+}
+
+.pivot-table-header-name-vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: inline;
+  // white-space: nowrap;
+  // display: inline-block;
+  // overflow: visible;
+}
+
+.pivot-table-date-picker.b-form-btn-label-control.form-control > .form-control {
+  word-break: keep-all;
+}
