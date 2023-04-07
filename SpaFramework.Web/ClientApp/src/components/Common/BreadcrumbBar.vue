@@ -1,7 +1,6 @@
 <template>
   <div>
-    <b-breadcrumb :items="items" v-if="isCampaignAdmin" />
-    <div v-if="!isCampaignAdmin" class="mt-3" />
+    <b-breadcrumb :items="items"/>
   </div>
 </template>
 
@@ -34,7 +33,7 @@ export default {
   },
   computed: {
     ...mapState('cachedData', ['knownPageNames']),
-    ...mapGetters('auth', ['isAuthenticated', 'authenticatedUsername', 'authenticatedUserId', 'isSuperAdmin', 'isSupervisor', 'isCampaignAdmin', 'isCallCenterAgent']),
+    ...mapGetters('auth', ['isAuthenticated', 'authenticatedUsername', 'authenticatedUserId', 'isSuperAdmin']),
     items: function () {
       let retVal = [];
 

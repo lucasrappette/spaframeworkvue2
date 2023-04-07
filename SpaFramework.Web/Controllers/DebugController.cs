@@ -23,14 +23,12 @@ namespace SpaFramework.Web.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
-        private readonly IMapper _mapper;
 
-        public DebugController(IConfiguration configuration, UserManager<ApplicationUser> userManager, IHubContext<NotificationHub, INotificationClient> notificationHubContext, IMapper mapper)
+        public DebugController(IConfiguration configuration, UserManager<ApplicationUser> userManager, IHubContext<NotificationHub, INotificationClient> notificationHubContext)
         {
             _configuration = configuration;
             _userManager = userManager;
             _notificationHubContext = notificationHubContext;
-            _mapper = mapper;
         }
 
         private async Task PreCheck()

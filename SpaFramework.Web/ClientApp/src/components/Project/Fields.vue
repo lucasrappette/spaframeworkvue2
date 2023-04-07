@@ -52,7 +52,7 @@ export default {
       this.$emit('submit');
     }
   },
-  mounted() {
+  created() {
     this.load();
   }
 };

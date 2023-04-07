@@ -3,9 +3,6 @@
     <form-template @submit="onSubmit" @cancel="onCancel">
       <template v-slot:save><slot name="save"></slot></template>
       <template>
-        <b-alert v-if="isUserWorker" show variant="danger">
-          This user is a worker. Making changes may cause the system to stop working.
-        </b-alert>
         <b-alert v-if="isUserSuperAdmin" show variant="warning">
           This user is a super admin. Be extremely careful when making changes.
         </b-alert>
