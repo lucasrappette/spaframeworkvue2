@@ -35,7 +35,7 @@ namespace SpaFramework.Web.Controllers.Data.Content
         [Route("slug/{slug}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorDetails), StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<ContentDataDTO>> GetBySlug(string slug)
+        public async Task<ActionResult> GetBySlug(string slug)
         {
             var contentData = await _writeService.GetContentData(slug, new Dictionary<string, string>(), false);
             var returnValue = DataModelConverter.ConvertToDTO(ModelContexts.WebApi, contentData, new ConvertToDTOOptions());

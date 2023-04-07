@@ -1,6 +1,7 @@
 <template>
   <div>
-    <b-container fluid class="py-3">
+    <breadcrumb-bar />
+    <b-container fluid>
       <b-row>
         <b-col>
           <page-title :title="pageTitle" />

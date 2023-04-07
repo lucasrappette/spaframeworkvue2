@@ -1,8 +1,12 @@
 <template>
   <div>
-    <b-container fluid class="py-3">
+    <breadcrumb-bar />
+    <b-container fluid>
       <b-row>
         <b-col>
+          <span class="float-right">
+            <slot name="header-right"></slot>
+          </span>
           <page-loading v-if="!hideTitle && !item" />
           <page-title v-if="!hideTitle && item" :title="pageTitle" />
           <hr v-if="!hideTitle" />

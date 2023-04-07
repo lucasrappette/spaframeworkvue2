@@ -9,6 +9,7 @@
 <script>
 import axios from "axios";
 import FormMixin from '../Mixins/FormMixin.vue';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: "ApplicationUserEdit",
@@ -30,13 +31,16 @@ export default {
     }
   },
   methods: {
+    ...mapActions('cachedData', ['setKnownPageName']),
     load: function () {
-      let url = '/api/applicationUser/' + this.id + "?includes=outlets,roles";
+      let url = '/api/applicationUser/' + this.id + "?context=WebApiElevated&includes=outlets,roles";
 
       axios
         .get(url)
         .then(response => {
           this.item = response.data;
+
+          this.setKnownPageName({ path: this.$route.path, name: this.item.userName});
         })
         .catch(error => {
           console.log(error);
@@ -46,7 +50,7 @@ export default {
       this.$router.push('/applicationUser');
     },
     onSubmit(evt) {
-      let url = '/api/applicationUser/' + this.id;
+      let url = '/api/applicationUser/' + this.id + '?context=WebApiElevated';
 
       axios
         .put(url, this.item)

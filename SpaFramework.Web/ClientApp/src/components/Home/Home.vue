@@ -4,11 +4,11 @@
       <b-row>
         <b-col>
           <b-card-group deck>
-            <b-card no-body>
+            <b-card no-body v-if="!isAuthenticated">
               <b-jumbotron header="SPA Framework" lead="ASP.NET Core + VueJS" class="text-center">
                 <p>There's a readme file with some additional information.</p>
               </b-jumbotron>
-              <div v-if="!isAuthenticated" class="text-center my-3">
+              <div class="text-center my-3">
                 <b-button to="/login" variant="primary">Log In to Get Started</b-button>
               </div>
             </b-card>

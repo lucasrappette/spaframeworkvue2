@@ -147,10 +147,13 @@ namespace SpaFramework.App.DAL
 
         private void SeedData(ModelBuilder modelBuilder)
         {
+            // If you're running this for the first time and need to seed this data, remove the conditional compilation directive below.
+#if INITIAL_RUN
             SeedRoles(modelBuilder);
             SeedUsers(modelBuilder);
             SeedContent(modelBuilder);
             SeedAppData(modelBuilder);
+#endif
         }
 
         private static class RoleIds
