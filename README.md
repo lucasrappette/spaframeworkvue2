@@ -38,7 +38,6 @@ Some other useful tools:
 * Microsoft Azure Storage Explorer
 
 To get a new environment up and running, here are the basic steps:
-*	Get up and running with CLIF (aka Comm Logic Forms)
   *	Clone repo locally
   *	Open solution in VS
   *	Build
