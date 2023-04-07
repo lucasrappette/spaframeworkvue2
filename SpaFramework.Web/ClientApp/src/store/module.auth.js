@@ -107,6 +107,30 @@ export default {
     isContentManager: (state) => { return state.username != null && state.roles != null && state.roles.includes('ContentManager'); },
 
     authenticatedUsername: state => { return state.username; },
-    authenticatedUserId: state => { return state.id; }
+    authenticatedUserId: state => { return state.id; },
+
+    parsedJwt: state => {
+      let token = state.jwt;
+      if (!token)
+        return null;
+
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      return JSON.parse(jsonPayload);
+    },
+    isJwtExpired: (state, getters) => {
+      let parsedJwt = getters.parsedJwt;
+      if (!parsedJwt)
+        return false;
+
+      let exp = new Date(parsedJwt.exp * 1000);
+      let now = new Date();
+
+      return now > exp;
+    }
   }
 }

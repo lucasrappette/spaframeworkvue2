@@ -44,7 +44,7 @@ namespace SpaFramework.App.Services.Data.Jobs
             return false;
         }
 
-        private async Task<bool> Increment(long jobId, string columnName)
+        private async Task<bool> Increment(Guid jobId, string columnName)
         {
             bool isDone = false;
 
@@ -84,12 +84,12 @@ namespace SpaFramework.App.Services.Data.Jobs
             return isDone;
         }
 
-        public async Task<bool> IncrementSuccessCount(long jobId)
+        public async Task<bool> IncrementSuccessCount(Guid jobId)
         {
             return await Increment(jobId, "SuccessCount");
         }
 
-        public async Task<bool> IncrementFailureCount(long jobId)
+        public async Task<bool> IncrementFailureCount(Guid jobId)
         {
             return await Increment(jobId, "FailureCount");
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SpaFramework.App.Utilities.Serialization;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,6 +17,7 @@ namespace SpaFramework.App.Models.Data.Content
 
         [Timestamp]
         [ConcurrencyCheck]
+        [ExcludeFromDTO]
         public byte[] ConcurrencyTimestamp { get; set; }
 
         [NotMapped]
@@ -26,6 +28,7 @@ namespace SpaFramework.App.Models.Data.Content
         }
 
         [NotMapped]
+        [ExcludeFromDTO]
         public string LoggableName { get { return Slug; } }
 
         [MaxLength(100)]

@@ -13,6 +13,7 @@ using SpaFramework.Core.Models;
 using FluentValidation;
 using System.Security.Claims;
 using SpaFramework.App.Utilities;
+using SpaFramework.App.Utilities.Serialization;
 
 namespace SpaFramework.App.Services.Data.Accounts
 {
@@ -56,6 +57,65 @@ namespace SpaFramework.App.Services.Data.Accounts
                 return true;
 
             return false;
+        }
+		
+		protected override async Task<ApplicationUser> StripNavigationProperties(ApplicationUser dataModel)
+        {
+            return SerializationUtilities.CloneModel<ApplicationUser>(dataModel, explicitIncludes: new string[] { "Clients", "Roles", "Contact", "Contact.ContactBusinessUnits" });
+        }
+
+        protected override async Task OnCreating(ClaimsPrincipal user, ApplicationUser dataModel, Dictionary<string, object> extraData)
+        {
+
+            var applicationUser = await GetApplicationUser(user);
+
+            if (string.IsNullOrEmpty(dataModel.UserName))
+                dataModel.UserName = dataModel.Email;
+
+            dataModel.NormalizedUserName = dataModel.UserName.ToUpper();
+
+            if (!string.IsNullOrEmpty(dataModel.Email))
+                dataModel.NormalizedEmail = dataModel.Email.ToUpper();
+
+            dataModel.SecurityStamp = string.Empty;
+
+            if (string.IsNullOrEmpty(dataModel.PasswordHash))
+            {
+                dataModel.PasswordHash = "AQAAAAEAACcQAAAAEPho8KMQakeHgisftWAFFd8l688LJwa9sCeueDvcN4N1XU0f6v9aToxk5T/H+5AyOQ==";
+                dataModel.SecurityStamp = "QRHAJELJZG7BO2GUQIQXKBIGBDICW4ZD";
+            }
+
+            await CreateLinkedItems<ApplicationUserRole, Guid>(user, dataModel, dataModel.Roles, 
+                (linkedItem, parentId) => { linkedItem.UserId = parentId; },
+                item => { item.Id = Guid.NewGuid(); });
+
+            await base.OnCreating(user, dataModel, extraData);
+        }
+
+        protected override async Task OnUpdating(ClaimsPrincipal user, ApplicationUser dataModel, ApplicationUser oldDataModel, Dictionary<string, object> extraData)
+        {
+
+            await UpdateLinkedItems<ApplicationUserRole, Guid>(user, dataModel, dataModel.Roles, 
+                (linkedItem, parentId) => { linkedItem.UserId = parentId; }, 
+                (dbContext, parentId) => { return dbContext.ApplicationUserRoles.Where(x => x.UserId == parentId); },
+                null,
+                item => { item.Id = Guid.NewGuid(); });
+
+            dataModel.PasswordHash = oldDataModel.PasswordHash;
+            dataModel.SecurityStamp = oldDataModel.SecurityStamp;
+            dataModel.EmailConfirmed = oldDataModel.EmailConfirmed;
+
+            if (!string.IsNullOrEmpty(dataModel.Email))
+                dataModel.NormalizedEmail = dataModel.Email.ToUpper();
+
+            dataModel.NormalizedUserName = dataModel.UserName.ToUpper();
+
+            await base.OnUpdating(user, dataModel, oldDataModel, extraData);
+        }
+
+        protected override async Task OnUpdated(ClaimsPrincipal user, ApplicationUser dataModel, ApplicationUser oldDataModel, Dictionary<string, object> extraData)
+        {
+            await base.OnUpdated(user, dataModel, oldDataModel, extraData);
         }
     }
 }

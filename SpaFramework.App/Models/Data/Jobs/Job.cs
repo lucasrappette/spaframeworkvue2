@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System;
+using SpaFramework.App.Utilities.Serialization;
 
 namespace SpaFramework.App.Models.Data.Jobs
 {
@@ -17,6 +18,7 @@ namespace SpaFramework.App.Models.Data.Jobs
         public Guid Id { get; set; }
 
         [NotMapped]
+        [ExcludeFromDTO]
         public string LoggableName { get { return Name; } }
 
         [MaxLength(100)]

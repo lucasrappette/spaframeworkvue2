@@ -26,6 +26,9 @@ namespace SpaFramework.App.Services.WorkItems
         protected readonly IConfiguration _configuration;
         protected readonly ILogger<WorkItemService<TWorkItem>> _logger;
 
+        // Keeps a list of known queues, so we don't need to check for the existence of a queue with every request
+        private static Dictionary<string, bool> _existingQueues = new Dictionary<string, bool>();
+
         public WorkItemService(IConfiguration configuration, ILogger<WorkItemService<TWorkItem>> logger)
         {
             _configuration = configuration;
@@ -35,10 +38,23 @@ namespace SpaFramework.App.Services.WorkItems
         private async Task<QueueClient> CreateQueueIfNotExists()
         {
             var connectionString = _configuration.GetValue<string>("AzureWebJobsStorage");
-            var queueClient = new QueueClient(connectionString, typeof(TWorkItem).Name.ToLower());
-            await queueClient.CreateIfNotExistsAsync();
+            var queueName = typeof(TWorkItem).Name.ToLower();
+            var queueClient = new QueueClient(connectionString, queueName);
+
+            if (!_existingQueues.ContainsKey(queueName))
+            {
+                await queueClient.CreateIfNotExistsAsync();
+
+                _existingQueues.TryAdd(queueName, true);
+            }
 
             return queueClient;
+        }
+
+        public async Task EnqueueWorkItems(List<WorkItemMessage<TWorkItem>> workItemMessages)
+        {
+            foreach (var workItemMessage in workItemMessages)
+                await EnqueueWorkItem(workItemMessage);
         }
 
         public async Task EnqueueWorkItem(WorkItemMessage<TWorkItem> workItemMessage)
@@ -59,18 +75,31 @@ namespace SpaFramework.App.Services.WorkItems
             _logger.LogInformation("WorkItem {WorkItemType} {EntityAction}: {Name}", typeof(TWorkItem).Name, "Enqueued", workItemMessage.WorkItem.LoggableName);
         }
 
+        public async Task EnqueueWorkItems(List<TWorkItem> workItems, int? initialDelaySeconds = null, int? requeueDelaySeconds = null, TimeSpan? timeToLive = null)
+        {
+            foreach (var workItem in workItems)
+                await EnqueueWorkItem(workItem, initialDelaySeconds, requeueDelaySeconds, timeToLive);
+        }
+
         public async Task EnqueueWorkItem(TWorkItem workItem, int? initialDelaySeconds = null, int? requeueDelaySeconds = null, TimeSpan? timeToLive = null)
         {
-            WorkItemMessage<TWorkItem> workItemMessage = new WorkItemMessage<TWorkItem>()
+            try
             {
-                WorkItem = workItem,
-                Attempts = -1,
-                InitialDelaySeconds = initialDelaySeconds,
-                RequeueDelaySeconds = requeueDelaySeconds,
-                TimeToLive = timeToLive ?? TimeSpan.FromDays(7)
-            };
+                WorkItemMessage<TWorkItem> workItemMessage = new WorkItemMessage<TWorkItem>()
+                {
+                    WorkItem = workItem,
+                    Attempts = -1,
+                    InitialDelaySeconds = initialDelaySeconds,
+                    RequeueDelaySeconds = requeueDelaySeconds,
+                    TimeToLive = timeToLive ?? TimeSpan.FromDays(7)
+                };
 
-            await EnqueueWorkItem(workItemMessage);
+                await EnqueueWorkItem(workItemMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error enqueuing work item: {WorkItem}", workItem.LoggableName);
+            }
         }
     }
 }

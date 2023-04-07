@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpaFramework.App.Models;
 using SpaFramework.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace SpaFramework.Web.Utilities
 {
@@ -39,6 +40,11 @@ namespace SpaFramework.Web.Utilities
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public static string GetCallbackUrlBase(HttpRequest request)
+        {
+            // Check for X-Forwarded-Host -- if this is running behind NGrok for local dev, we need to use that instead of the host header
+            return request.Scheme + "://" + (request.Headers.ContainsKey("X-Forwarded-Host") ? request.Headers["X-Forwarded-Host"].First() : request.Host.Value) + (request.Host.Port != null ? ":" + request.Host.Port.ToString() : "");
         }
     }
 }
