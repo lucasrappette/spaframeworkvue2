@@ -17,13 +17,14 @@ export default {
       tableSettings: {
         endpoint: '/api/client',
         showNewButton: true,
+        defaultLimit: 100,
         columns: [
           {
             key: 'id',
             name: 'ID',
             visible: false,
             sortable: true,
-            type: 'number'
+            type: 'guid'
           },
           {
             key: 'name',

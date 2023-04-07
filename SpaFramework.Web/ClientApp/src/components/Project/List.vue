@@ -23,7 +23,7 @@ export default {
             name: 'ID',
             visible: false,
             sortable: true,
-            type: 'number'
+            type: 'guid'
           },
           {
             key: 'name',
@@ -81,17 +81,18 @@ export default {
         getDefaultFilter: function () {
           return '';
         },
-        includes: ['client']
+        includes: [],
+        viewStorageName: '/client:project'
       }
     }
   },
   methods: {
     onRowClicked: function (item, context) {
-      this.$router.push('/project/' + item.id);
+      this.$router.push(this.$route.path + '/' + item.id);
     },
     onNewClicked: function (filters) {
-      this.$router.push('/project/add');
-    }
+      this.$router.push(this.$route.path + '/add');
+    },
   },
   computed: {
   },

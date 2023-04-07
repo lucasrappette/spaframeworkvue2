@@ -45,7 +45,7 @@ export default {
       this.$router.push('/applicationUser');
     },
     onSubmit(evt) {
-      let url = '/api/applicationUser';
+      let url = '/api/applicationUser?context=WebApiElevated';
 
       axios
         .post(url, this.item)

@@ -22,10 +22,15 @@
 </template>
 
 <script>
+import axios from "axios";
 import { mapState, mapGetters } from 'vuex'
+import FormattingMixin from '../Mixins/FormattingMixin.vue';
 
 export default {
   name: "ProjectFields",
+  mixins: [
+    FormattingMixin
+  ],
   props: [
     'item'
   ],

@@ -23,7 +23,7 @@ export default {
   },
   computed: {
     itemTitle: function () {
-      if (this.item.name)
+      if (this.item && this.item.name)
         return this.item.name;
       else
         return null;
@@ -34,13 +34,20 @@ export default {
   },
   methods: {
     load: function () {
-      this.loadFieldsFromUrl();
+      axios
+        .get('/api/client/new')
+        .then(response => {
+          this.item = response.data;
+        })
+        .catch(error => {
+          this.processAddErrorResponse(error, 'Client');
+        });
     },
     onCancel(evt) {
       this.$router.push('/client');
     },
     onSubmit(evt) {
-      let url = '/api/client';
+      let url = '/api/client?context=WebApiElevated';
 
       axios
         .post(url, this.item)
@@ -48,6 +55,8 @@ export default {
           this.item = response.data;
 
           this.processAddSuccessResponse(response, 'Client');
+
+          this.$store.dispatch('cachedData/reloadClients');
 
           this.$router.push('/client');
         })

@@ -9,6 +9,7 @@
 <script>
 import axios from "axios";
 import FormMixin from '../Mixins/FormMixin.vue';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
   name: "ProjectEdit",
@@ -30,6 +31,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('cachedData', ['setKnownPageName']),
     load: function () {
       let url = '/api/project/' + this.id;
 
@@ -37,13 +39,15 @@ export default {
         .get(url)
         .then(response => {
           this.item = response.data;
+
+          this.setKnownPageName({ path: this.$route.path, name: this.item.name});
         })
         .catch(error => {
           console.log(error);
         });
     },
     onCancel(evt) {
-      this.$router.push('/project');
+      this.goToParentPage();
     },
     onSubmit(evt) {
       let url = '/api/project/' + this.id;
@@ -55,7 +59,7 @@ export default {
 
           this.processEditSuccessResponse(response, 'Project');
 
-          this.$router.push('/project');
+          this.goToParentPage();
         })
         .catch(error => {
           this.processEditErrorResponse(error, 'Project');

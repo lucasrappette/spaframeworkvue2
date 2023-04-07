@@ -23,7 +23,7 @@ export default {
   },
   computed: {
     itemTitle: function () {
-      if (this.item.name)
+      if (this.item && this.item.name)
         return this.item.name;
       else
         return null;
@@ -34,10 +34,22 @@ export default {
   },
   methods: {
     load: function () {
-      this.loadFieldsFromUrl();
+      this.$store.dispatch('cachedData/loadClients');
+
+      axios
+        .get('/api/project/new')
+        .then(response => {
+          this.item = response.data;
+
+          if (this.item.clientId)
+            this.item.clientId = this.clientId;
+        })
+        .catch(error => {
+          this.processAddErrorResponse(error, 'Project');
+        });
     },
     onCancel(evt) {
-      this.$router.push('/project');
+      this.goToParentPage();
     },
     onSubmit(evt) {
       let url = '/api/project';
@@ -49,7 +61,9 @@ export default {
 
           this.processAddSuccessResponse(response, 'Project');
 
-          this.$router.push('/project');
+          this.$store.dispatch('cachedData/reloadProjects');
+          
+          this.goToParentPage();
         })
         .catch(error => {
           this.processAddErrorResponse(error, 'Project');

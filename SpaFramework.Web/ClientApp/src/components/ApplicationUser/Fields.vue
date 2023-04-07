@@ -17,7 +17,7 @@
             <h4>Account</h4>
             <hr />
             <text-control label="User ID" v-model="item.id" disabled></text-control>
-            <text-control label="User Name" v-model="item.userName" :disabled="item.id"></text-control>
+            <text-control label="User Name" v-model="item.userName" :concurrency-check="item.concurrencyCheck"></text-control>
             <text-control label="Email Address" v-model="item.email" :concurrency-check="item.concurrencyCheck"></text-control>
             <hr />
             <text-control label="Agent ID" v-model="item.agentId" description="The user's agent ID in RingCentral Nice inContact"></text-control>

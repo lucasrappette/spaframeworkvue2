@@ -23,7 +23,7 @@ export default {
             name: 'ID',
             visible: false,
             sortable: true,
-            type: 'number'
+            type: 'guid'
           },
           {
             key: 'slug',

@@ -75,7 +75,7 @@
           <b-alert v-if="changePasswordError" show variant="danger"><span v-html="changePasswordError"></span></b-alert>
           <b-form @submit.prevent="onFormChangePassword">
             <text-control form-name="changePassword" label="Current Password" v-model="changePasswordOldPassword" type="password" required />
-            <text-control form-name="changePassword" label="New Password" v-model="changePasswordNewPassword" type="password" required min-length="16" />
+            <text-control form-name="changePassword" label="New Password" v-model="changePasswordNewPassword" type="password" required min-length="8" />
             <text-control form-name="changePassword" label="Confirm New Password" v-model="changePasswordConfirm" type="password" required :custom-validation="validateChangePasswordConfirm" />
             <b-button type="submit" variant="primary" class="mt-3">Change Password</b-button>
           </b-form>
