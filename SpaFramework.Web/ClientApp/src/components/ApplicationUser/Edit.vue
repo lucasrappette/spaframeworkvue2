@@ -33,7 +33,7 @@ export default {
   methods: {
     ...mapActions('cachedData', ['setKnownPageName']),
     load: function () {
-      let url = '/api/applicationUser/' + this.id + "?context=WebApiElevated&includes=outlets,roles";
+      let url = '/api/applicationUser/' + this.id + "?context=WebApiElevated&includes=roles";
 
       axios
         .get(url)

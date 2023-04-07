@@ -40,6 +40,7 @@ import FilteredTable from './components/Common/FilteredTable.vue'
 import PivotTable from './components/Common/PivotTable.vue'
 import ContentBlock from './components/Common/ContentBlock.vue'
 import Steps from './components/Common/Steps.vue'
+import BreadcrumbBar from './components/Common/BreadcrumbBar.vue'
 
 import AuthForm from './components/Auth/AuthForm.vue'
 
@@ -92,6 +93,7 @@ Vue.component('filtered-table', FilteredTable);
 Vue.component('pivot-table', PivotTable);
 Vue.component('content-block', ContentBlock);
 Vue.component('steps', Steps);
+Vue.component('breadcrumb-bar', BreadcrumbBar);
 
 Vue.component('auth-form', AuthForm);
 

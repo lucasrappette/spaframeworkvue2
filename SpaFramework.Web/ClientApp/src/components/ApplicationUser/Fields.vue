@@ -20,7 +20,6 @@
             <text-control label="User Name" v-model="item.userName" :concurrency-check="item.concurrencyCheck"></text-control>
             <text-control label="Email Address" v-model="item.email" :concurrency-check="item.concurrencyCheck"></text-control>
             <hr />
-            <text-control label="Agent ID" v-model="item.agentId" description="The user's agent ID in RingCentral Nice inContact"></text-control>
           </b-col>
           <b-col xs="12" sm="6" lg="3">
             <h4>Basic</h4>
@@ -34,12 +33,6 @@
             <div v-if="!item.id">
               <p class="small">Once the user has been created, you'll be able to set a password for the user.</p>
             </div>
-          </b-col>
-          <b-col xs="12" sm="6" lg="3">
-            <h4>Outlets</h4>
-            <hr />
-            <checkbox-control label="All Outlets" v-model="item.allOutlets" :concurrency-check="item.concurrencyCheck"></checkbox-control>
-            <check-box-list-control label="Outlets" v-model="item.outlets" :disabled="item.allOutlets" id-field="outletId" :options="nonNullOutletSelectOptions" name="outlets" :concurrency-check="item.concurrencyCheck"></check-box-list-control>
           </b-col>
           <b-col xs="12" sm="6" lg="3">
             <h4>Roles</h4>
@@ -83,15 +76,9 @@ export default {
     };
   },
   computed: {
-    ...mapState('cachedData', ['outlets', 'applicationRoles']),
-    nonNullOutletSelectOptions: function () {
-      return this.outlets.selectOptions.filter(x => x.value !== null);
-    },
+    ...mapState('cachedData', ['applicationRoles']),
     nonNullApplicationRoleSelectOptions: function () {
       return this.applicationRoles.selectOptions.filter(x => x.value != null);
-    },
-    isUserWorker: function () {
-      return this.isUserInRole('Worker');
     },
     isUserSuperAdmin: function () {
       return this.isUserInRole('SuperAdmin');
@@ -148,8 +135,7 @@ export default {
         return true;
     },
   },
-  mounted () {
-    this.$store.dispatch('cachedData/loadOutlets');
+  created () {
     this.$store.dispatch('cachedData/loadApplicationRoles');
   }
 };

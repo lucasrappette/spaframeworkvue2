@@ -15,6 +15,7 @@
           <b-nav-item v-if="isProjectViewer" to="/client">Clients</b-nav-item>
           <b-nav-item v-if="isProjectViewer" to="/project">Projects</b-nav-item>
           <b-nav-item v-if="isContentManager" to="/contentBlock">Content</b-nav-item>
+          <b-nav-item v-if="isSuperAdmin" to="/applicationUser">User Management</b-nav-item>
         </b-navbar-nav>
 
         <b-nav-text v-if="environment != 'prod'" id="dev-site-warning">

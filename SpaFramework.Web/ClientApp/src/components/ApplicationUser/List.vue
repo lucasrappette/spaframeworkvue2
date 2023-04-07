@@ -63,32 +63,12 @@ export default {
             displaySelector: 'applicationRole.name',
             selectOptions: [],
             selectOptionsSource: { storeModule: 'cachedData', storeAction: 'loadApplicationRoles', storeGetter: 'applicationRoles' }
-          },
-          {
-            key: 'allOutlets',
-            name: 'All Outlets',
-            visible: true,
-            sortable: false,
-            type: 'select',
-            selectOptions: [],
-            selectOptionsSource: { storeModule: 'cachedData', storeGetter: 'allOutletsSelectOptions' }
-          },
-          {
-            key: 'outlets',
-            name: 'Outlets',
-            visible: true,
-            sortable: false,
-            type: 'multiselect',
-            filterSelector: 'outletId',
-            displaySelector: 'outlet.name',
-            selectOptions: [],
-            selectOptionsSource: { storeModule: 'cachedData', storeAction: 'loadOutlets', storeGetter: 'outlets' }
-          },
+          }
         ],
         getDefaultFilter: function () {
           return '';
         },
-        includes: ['roles', 'roles.applicationRole', 'outlets', 'outlets.outlet']
+        includes: ['roles', 'roles.applicationRole']
       }
     }
   },

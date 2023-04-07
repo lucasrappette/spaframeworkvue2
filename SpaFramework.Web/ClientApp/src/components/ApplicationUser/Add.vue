@@ -21,9 +21,7 @@ export default {
         lastName: null,
         agentId: null,
         email: null,
-        outlets: [],
         roles: [],
-        allOutlets: false
       }
     };
   },
