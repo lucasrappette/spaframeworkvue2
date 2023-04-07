@@ -38,7 +38,6 @@ namespace SpaFramework.App
                 options.UseSqlServer(configuration.GetConnectionString("Default"), 
                 x =>
                 {
-                    x.UseNodaTime();
                     x.CommandTimeout(300);
                 }));
 

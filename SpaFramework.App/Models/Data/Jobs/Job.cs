@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using NodaTime;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,10 +22,10 @@ namespace SpaFramework.App.Models.Data.Jobs
         [MaxLength(100)]
         public string Name { get; set; }
 
-        public Instant Created { get; set; }
-        public Instant? Started { get; set; }
-        public Instant? Updated { get; set; }
-        public Instant? Ended { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Started { get; set; }
+        public DateTime? Updated { get; set; }
+        public DateTime? Ended { get; set; }
         
         public long ExpectedCount { get; set; }
         public long SuccessCount { get; set; }

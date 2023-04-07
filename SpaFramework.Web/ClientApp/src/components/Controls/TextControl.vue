@@ -129,7 +129,7 @@ export default {
       let newValue = this.fromTemplate(templatedNewValue);
       let oldValue = this.fromTemplate(templatedOldValue);
 
-      if (this.required !== null && this.required !== false && (newValue == null || newValue == ''))
+      if (this.required !== null && this.required !== false && (newValue === null || newValue === '' || typeof(newValue) === 'undefined'))
         validationError = this.requiredError;
       else if (this.minLength && this.minLength > 0 && newValue !== null && newValue.length < this.minLength)
         validationError = this.minLengthError;

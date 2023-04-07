@@ -1,5 +1,4 @@
-﻿using NodaTime;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System;
 
 namespace SpaFramework.App.Models.Data.Jobs
@@ -19,7 +18,7 @@ namespace SpaFramework.App.Models.Data.Jobs
 
         public Guid? ItemId { get; set; }
 
-        public Instant Timestamp { get; set; }
+        public DateTime Timestamp { get; set; }
         
         public string Note { get; set; }
     }

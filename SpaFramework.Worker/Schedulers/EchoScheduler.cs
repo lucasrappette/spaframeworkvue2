@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SpaFramework.App.Models.Service.WorkItems.Echo;
 using SpaFramework.App.Services.WorkItems;
-using NodaTime;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,13 +12,11 @@ namespace SpaFramework.Worker.Schedulers
     public class EchoSheduler
     {
         private readonly IConfiguration _configuration;
-        private readonly IClock _clock;
         private readonly IWorkItemService<EchoWorkItem> _echoWorkItemService;
 
-        public EchoSheduler(IConfiguration configuration, IClock clock, IWorkItemService<EchoWorkItem> echoWorkItemService)
+        public EchoSheduler(IConfiguration configuration, IWorkItemService<EchoWorkItem> echoWorkItemService)
         {
             _configuration = configuration;
-            _clock = clock;
             _echoWorkItemService = echoWorkItemService;
         }
 
@@ -31,7 +29,7 @@ namespace SpaFramework.Worker.Schedulers
         /// <returns></returns>
         public async Task Trigger([TimerTrigger("0 */1 * * * *", RunOnStartup = false, UseMonitor = true)] TimerInfo timerInfo, ILogger logger, CancellationToken cancellationToken)
         {
-            Instant now = _clock.GetCurrentInstant();
+            DateTime now = DateTime.UtcNow;
 
             await _echoWorkItemService.EnqueueWorkItem(new EchoWorkItem()
             {

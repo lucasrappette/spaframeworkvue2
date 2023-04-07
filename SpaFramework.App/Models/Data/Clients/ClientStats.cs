@@ -1,5 +1,4 @@
-﻿using NodaTime;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +14,7 @@ namespace SpaFramework.App.Models.Data.Clients
         public Client Client { get; set; }
 
         public int NumberOfProjects { get; set; }
-        public LocalDate FirstStartDate { get; set; }
-        public LocalDate LastEndDate { get; set; }
+        public DateTime FirstStartDate { get; set; }
+        public DateTime LastEndDate { get; set; }
     }
 }

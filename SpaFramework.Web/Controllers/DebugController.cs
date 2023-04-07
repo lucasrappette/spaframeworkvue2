@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using SpaFramework.App.Models.Data.Accounts;
 using SpaFramework.App.Models.Notifications;
 using SpaFramework.Web.Hubs;
-using NodaTime;
 using System;
 using System.Threading.Tasks;
 
@@ -25,15 +24,13 @@ namespace SpaFramework.Web.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHubContext<NotificationHub, INotificationClient> _notificationHubContext;
         private readonly IMapper _mapper;
-        private readonly IClock _clock;
 
-        public DebugController(IConfiguration configuration, UserManager<ApplicationUser> userManager, IHubContext<NotificationHub, INotificationClient> notificationHubContext, IMapper mapper, IClock clock)
+        public DebugController(IConfiguration configuration, UserManager<ApplicationUser> userManager, IHubContext<NotificationHub, INotificationClient> notificationHubContext, IMapper mapper)
         {
             _configuration = configuration;
             _userManager = userManager;
             _notificationHubContext = notificationHubContext;
             _mapper = mapper;
-            _clock = clock;
         }
 
         private async Task PreCheck()

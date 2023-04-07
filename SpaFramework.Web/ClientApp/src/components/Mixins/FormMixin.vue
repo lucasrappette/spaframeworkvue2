@@ -5,40 +5,59 @@ export default {
   ],
   data() {
     return {
+      validationErrors: []
     }
   },
   computed: {
   },
   methods: {
+    goToParentPage: function () {
+      this.$router.push(this.$route.path.substring(0, this.$route.path.lastIndexOf("/")));
+    },
     loadFieldsFromUrl: function () {
       Object.keys(this.$route.query).forEach(k => {
         this.item[k] = this.$route.query[k];
       });
     },
+    isComponentValid: function (component, formName) {
+      if (!component || !component.$children)
+        return true;
+
+      // We run through each item, rather than just calling .every, to ensure each item gets checked and can update its styling accordingly
+      let isValid = true;
+
+      component.$children.forEach(childComponent => {
+        if (typeof(childComponent.isValid) !== 'undefined') {
+          if (!childComponent.formName || childComponent.formName == formName) {
+            if (!childComponent.isValid) {
+              let label = '(Unknown)';
+              if (childComponent && childComponent.label)
+                label = childComponent.label;
+
+              if (childComponent.validationError !== 'undefined')
+                this.validationErrors.push(label + ': ' + childComponent.validationError);
+              else
+                this.validationErrors.push(label + ': Invalid value, please try again');
+              
+              console.log('Validation failed: ' + label);
+              isValid = false;
+            }
+          }
+        }
+
+        if (!this.isComponentValid(childComponent, formName))
+          isValid = false;
+      });
+
+      return isValid;
+    },
     isFormValid: function (formName) {
       if (!formName)
         formName = 'Default';
 
-      // We run through each item, rather than just calling .every, to ensure each item gets checked and can update its styling accordingly
-      let isValid = true;
-      this.$children.forEach(childComponent => {
-        if (childComponent.formName && childComponent.formName != formName)
-          return;
-        if (typeof(childComponent.isValid) === 'undefined')
-          return;
-        if (!childComponent.isValid) {
-          let label = '(Unknown)';
-          if (childComponent && childComponent.label)
-            label = childComponent.label;
-          
-          console.log('Validation failed: ' + label);
-          isValid = false;
-        }
-      });
+      this.validationErrors = [];
 
-      return isValid;
-
-      //return this.$children.every(childComponent => { return (childComponent.formName && childComponent.formName != formName) || typeof(childComponent.isValid) === 'undefined' || childComponent.isValid; });
+      return this.isComponentValid(this, formName);
     },
     processEditSuccessResponse: function (response, entityType) {
       this.processSuccessResponse(response, entityType, 'saved', 'Saved');

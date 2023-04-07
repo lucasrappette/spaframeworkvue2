@@ -28,8 +28,6 @@ using SpaFramework.Web.Mappings;
 using SpaFramework.Web.Middleware;
 using SpaFramework.Web.Middleware.Exceptions;
 using Newtonsoft.Json;
-using NodaTime;
-using NodaTime.Serialization.JsonNet;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -165,7 +163,6 @@ namespace SpaFramework.Web
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
 
-                    options.SerializerSettings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
                 });
             //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -182,7 +179,6 @@ namespace SpaFramework.Web
                     options.PayloadSerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     options.PayloadSerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
 
-                    options.PayloadSerializerSettings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
                 });
 
             // Add Swagger (via Swashbuckle)
@@ -330,7 +326,6 @@ words, if `X-Total-Count` equals `X-Total-Count-Max`, there are probably more re
 
             services.AddTransient<IMailerService, SendGridMailerService>();
 
-            services.AddSingleton<IClock>(NodaTime.SystemClock.Instance);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

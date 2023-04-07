@@ -43,6 +43,7 @@
               <b-dropdown-divider v-if="activeViewName"></b-dropdown-divider>
               <b-dropdown-item-button @click="deleteView" v-if="activeViewName">Delete "{{activeViewName}}" View</b-dropdown-item-button>
             </b-dropdown>
+            <b-button v-if="showToggleAutoSave" @click="toggleAutoSaveDefaultView()" v-b-tooltip.hover title="Toggles whether or not to save filters on the table below when navigating between pages"><b-icon :icon="autoSaveDefaultView ? 'filter-square-fill' : 'filter-square'" /></b-button>
           </b-button-group>
           <b-button-group class="ml-2" v-if="settings.globalSearch && !isSearchVisible">
             <b-button @click="isSearchVisible = true"><b-icon icon="search" /></b-button>
@@ -72,6 +73,9 @@
                 <b-dropdown-item-button @click="exportResults('ViewPDF')">View PDF</b-dropdown-item-button>
               </b-dropdown-group>
             </b-dropdown>
+          </b-button-group>
+          <b-button-group class="ml-2" v-if="settings.manuallyApplyFilters">
+            <b-button :disabled="!manuallyApplyFiltersReady" @click="applyFilters">Apply Filters</b-button>
           </b-button-group>
           <slot name="extraButtons"></slot>
         </b-button-toolbar>
@@ -130,32 +134,8 @@
                   </b-col>
                 </b-row>
 
-                <!-- https://bootstrap-vue.org/docs/components/form-tags#using-custom-form-components -->
-                <!--
                 <b-form-group v-if="!column.hideFilter && getFilterType(column) == 'multiselect'">
-                  <b-form-tags id="tags-with-dropdown" v-model="filters[column.key]" no-outer-focus class="mb-2">
-                    <template v-slot="{ tags, disabled, addTag, removeTag }">
-                      <ul v-if="tags.length > 0" class="list-inline d-inline-block mb-2">
-                        <li v-for="tag in tags" :key="tag" class="list-inline-item">
-                          <b-form-tag @remove="removeTag(tag)" :title="tag" :disabled="disabled" variant="info">
-                            {{column.selectOptions.find(c => c.value == tag).text}}
-                          </b-form-tag>
-                        </li>
-                      </ul>
-                      <b-dropdown size="sm" variant="outline-secondary" block menu-class="w-100">
-                        <template #button-content>
-                          <b-icon icon="tag-fill"></b-icon> Choose tags
-                        </template>
-                        <b-dropdown-item-button v-for="option in column.selectOptions" :key="option.value" @click="onMultiselectOptionClick({ option, addTag })">
-                          {{ option }}
-                        </b-dropdown-item-button>
-                      </b-dropdown>
-                    </template>
-                  </b-form-tags>
-                </b-form-group>
-                -->
-                <b-form-group v-if="!column.hideFilter && getFilterType(column) == 'multiselect'">
-                  <b-form-tags v-model="filters[column.key]" add-on-change no-outer-focus @input="multiSelectUpdated">
+                  <b-form-tags v-model="filters[column.key]" add-on-change no-outer-focus class="multiselect" @input="multiSelectUpdated">
                     <template v-slot="{ tags, inputAttrs, inputHandlers, disabled, addTag, removeTag }">
                       <ul v-if="tags.length > 0" class="list-inline d-inline-block mb-2">
                         <li v-for="tag in tags" :key="tag" class="list-inline-item">
@@ -171,6 +151,10 @@
                         </template>
                       </b-form-select>
                     </template>
+                  </b-form-tags>
+                </b-form-group>
+                <b-form-group v-if="!column.hideFilter && getFilterType(column) == 'multitext'">
+                  <b-form-tags v-model="filters[column.key]" separator=" ,;|" placeholder="" class="form-control-multitext" remove-on-delete @input="updateMultiText">
                   </b-form-tags>
                 </b-form-group>
               </b-th>
@@ -241,6 +225,29 @@ import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 
 const columnTypes = {
+  multitext: {
+    filterType: 'multitext',
+    render: (value, row, col) => {
+        return value;
+    },
+    apply: (values, col) => {
+        if (!Array.isArray(values) || values.length == 0)
+            return null;
+
+        let query = '(' + col.key + `.StartsWith(\"${values[0]}\")`;
+
+        for (var i = 1; i < values.length; i++)
+        {
+            let element = ' OR ' + col.key + `.StartsWith(\"${values[i]}\")`;
+            query += element;
+        }
+
+        return query + ')';
+    },
+    search: (value) => {
+        return "";
+    }
+  },
   text: {
     filterType: 'text',
     render: (value, row, col) => {
@@ -331,6 +338,18 @@ const columnTypes = {
   number: {
     filterType: 'number',
     render: (value, row, col) => {
+      if (!value)
+        return '';
+
+      if (col.numberFormat && col.numberFormat == 'currency') {
+        var formatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        });
+
+        return formatter.format(value)
+      }
+
       return value;
     },
     apply: (value, col) => {
@@ -349,6 +368,9 @@ const columnTypes = {
       return dt.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY);
     },
     apply: (value, col) => {
+      if (!value)
+        return '';
+
       let d = DateTime.fromISO(value).plus({ days: 1});
       let e = DateTime.fromISO(value);
       return col.key + '>="' + e.toFormat('yyyy-MM-dd') + '" and ' + col.key + '<"' + d.toFormat('yyyy-MM-dd') + '"';
@@ -364,10 +386,18 @@ const columnTypes = {
       return dt.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) + ' ' + dt.toLocaleString(DateTime.TIME_SIMPLE);
     },
     apply: (value, col) => {
+      if (!value)
+        return '';
+
+      let tzoffset = 'T00:00:00Z';
+
+      if (typeof col.tzoffset !== 'undefined')
+        tzoffset = col.tzoffset;
+
       let d = DateTime.fromISO(value).plus({ days: 1});
       let e = DateTime.fromISO(value);
       // This uses UTC -- ideally, we'd switch this to use the locale offset, like we do when rendering
-      return col.key + '>="' + e.toFormat('yyyy-MM-dd') + 'T00:00:00Z" and ' + col.key + '<"' + d.toFormat('yyyy-MM-dd') + 'T00:00:00Z"';
+      return col.key + '>="' + e.toFormat('yyyy-MM-dd') + tzoffset + '" and ' + col.key + '<"' + d.toFormat('yyyy-MM-dd') + tzoffset + '"';
     }
   },
   datetimeoffset: {
@@ -380,6 +410,9 @@ const columnTypes = {
       return dt.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY) + ' ' + dt.toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET);
     },
     apply: (value, col) => {
+      if (!value)
+        return '';
+
       let d = DateTime.fromISO(value).plus({ days: 1});
       let e = DateTime.fromISO(value);
       return col.key + '>="' + e.toFormat('yyyy-MM-dd') + '" and ' + col.key + '<"' + d.toFormat('yyyy-MM-dd') + '"';
@@ -489,21 +522,27 @@ export default {
       showQueryModeHelp: false,
       views: [],
       saveViewName: 'New View',
-      activeViewName: null
+      activeViewName: null,
+      manuallyApplyFiltersReady: false,
+      isWaitingForFilterForResults: false,
+      autoSaveDefaultView: false
     }
   },
   computed: {
     ...mapGetters('auth', ['authenticatedUserId']),
+    showToggleAutoSave: function () {
+      if (this.settings.hideToggleAutoSave)
+        return false;
+
+      return true;
+    },
     exampleObject: function () {
       if (!this.items)
         return null;
 
-      console.log(this.rawItems[0]);
-
       //let x = stringify(this.rawItems[0], null, 2);
       let prune = require('json-prune');
       let x = prune(this.rawItems[0]);
-      console.log(x);
 
       return JSON.stringify(JSON.parse(x), null, 2);
     },
@@ -528,6 +567,8 @@ export default {
       let endIndex = this.page * this.limit > this.total ? this.total : this.page * this.limit;
       let total = this.total;
 
+      if (total == 0 && this.isWaitingForFilterForResults)
+        return 'Enter text in one of the filters.';
       if (total == 0)
         return 'No results';
       else
@@ -573,6 +614,37 @@ export default {
       localStorage.setItem(this.viewStorageName, JSON.stringify(this.views));
 
       this.activeViewName = this.saveViewName;
+    },
+    toggleAutoSaveDefaultView: function() {
+      this.autoSaveDefaultView = !this.autoSaveDefaultView;
+
+      sessionStorage.setItem(this.viewStorageName + '_AutoSave', this.autoSaveDefaultView);
+    },
+    loadDefaultView: function() {
+      let rawAutoSave = sessionStorage.getItem(this.viewStorageName + '_AutoSave');
+      if (!rawAutoSave)
+        return;
+
+      let autoSave = JSON.parse(rawAutoSave);
+      if (!autoSave)
+        return;
+
+      this.autoSaveDefaultView = true;
+
+      let rawViewState = sessionStorage.getItem(this.viewStorageName + '_Default');
+
+      if (!rawViewState)
+        return;
+
+      let viewState = JSON.parse(rawViewState);
+      this.setViewState(viewState);
+    },
+    saveDefaultView: function () {
+      if (!this.autoSaveDefaultView)
+        return;
+        
+      let viewState = this.getViewState();
+      sessionStorage.setItem(this.viewStorageName + '_Default', JSON.stringify(viewState));
     },
     loadView: function (view) {
       this.activeViewName = view.name;
@@ -769,14 +841,14 @@ export default {
 
       this.refreshData();
     },
+    updateMultiText: function (e) {
+        this.refreshData(false, true);
+    },
     onFilterKeyUp: function (e) {
       if (e.keyCode >= 9 && e.keyCode < 46 && e.keyCode != 13)
         return;
 
       this.refreshData(true, true);
-    },
-    applyQuery: function () {
-      this.refreshData();
     },
     toggleQueryMode: function () {
       this.isQueryMode = !this.isQueryMode;
@@ -841,11 +913,7 @@ export default {
           return this.getColumnType(col).render(v, row, col);
       }
     },
-    getFilterUrlComponent: function () {
-      let filters = [];
-      if (this.settings.getDefaultFilter)
-        filters.push(this.settings.getDefaultFilter());
-
+    pushFilters: function (filters) {
       this.settings.columns.forEach(col => {
         let f = this.filters[col.key];
         if (f === undefined || f === null)
@@ -885,12 +953,27 @@ export default {
         });
       }
 
+      return filters;
+    },
+    getFilterUrlComponent: function () {
+      let filters = [];
+      if (this.settings.getDefaultFilter)
+        filters.push(this.settings.getDefaultFilter());
+
+      filters = this.pushFilters(filters);
+
       let filter = filters.filter(f => f.length > 0).join(' AND ');
       return filter;
     },
     getDataUrl: function (returnAll) {
       // Refreshes rawItems -- hits the server to get new data
-      let url = this.settings.endpoint + '?';
+      let url = this.settings.endpoint;
+
+      if (url.includes('?'))
+        url += '&';
+      else
+        url += '?';
+        
       let offset = (this.page * this.limit) - this.limit;
 
       if (returnAll) {
@@ -917,6 +1000,9 @@ export default {
         if (filter.length > 0)
           url += '&filter=' + encodeURIComponent(filter);
       }
+
+      if (this.settings.apiContext)
+        url += '&context=' + encodeURIComponent(this.settings.apiContext);
 
       return url;
     },
@@ -967,7 +1053,21 @@ export default {
 
       this.refreshData(false, false, true);
     },
-    refreshData: function (wait, resetPaging, preserveView) {
+    applyQuery: function () {
+      this.applyFilters();
+    },
+    applyFilters: function () {
+      this.refreshData(false, true, false, true);
+    },
+    refreshData: function (wait, resetPaging, preserveView, overrideManual) {
+      if (this.settings.manuallyApplyFilters && !overrideManual) {
+        this.manuallyApplyFiltersReady = true;
+        return;
+      }
+
+      if (this.settings.manuallyApplyFilters)
+        this.manuallyApplyFiltersReady = false;
+
       if (wait) {
         if (this.refreshDataTimeout != null)
           clearTimeout(this.refreshDataTimeout);
@@ -993,7 +1093,30 @@ export default {
       if (!this.isQueryMode)
         this.query = this.getFilterUrlComponent();
 
+      if (this.settings.waitForFilterForResults) {
+        let f = this.pushFilters([]);
+
+        if (f.length == 0) {
+          this.isWaitingForFilterForResults = true;
+          this.rawItems = [];
+          this.total = 0;
+          this.totalMax = 0;
+          this.dataError = null;
+
+          this.$emit('itemsLoaded', this.rawItems);
+
+          this.refreshItems(true);
+
+          this.refreshingData = false;
+          return;
+        } else {
+          this.isWaitingForFilterForResults = false;
+        }
+      }
+
       this.$emit('viewStateChanged', this.getViewState());
+
+      this.saveDefaultView();
 
       let url = this.getDataUrl();
 
@@ -1047,15 +1170,6 @@ export default {
     if (this.settings.defaultLimits)
       this.limits = this.settings.defaultLimits;
 
-    if (this.settings.loadQueryString !== false) {
-      this.settings.columns.forEach(col => {
-        if (this.$route.query[col.key]) {
-          this.visible[col.key] = true;
-          this.filters[col.key] = this.$route.query[col.key];
-        }
-      });
-    }
-
     this.settings.columns.forEach(col => {
       let c = this.getColumnType(col);
       if (c.init)
@@ -1098,7 +1212,17 @@ export default {
       }
     });
 
+    if (this.settings.loadQueryString !== false) {
+      this.settings.columns.forEach(col => {
+        if (this.$route.query[col.key]) {
+          this.visible[col.key] = true;
+          this.filters[col.key] = this.$route.query[col.key];
+        }
+      });
+    }
+
     this.loadViews();
+    this.loadDefaultView();
 
     this.refreshData();
   },

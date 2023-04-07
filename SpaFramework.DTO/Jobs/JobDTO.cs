@@ -13,10 +13,10 @@ namespace SpaFramework.DTO.Jobs
 
         public string Name { get; set; }
 
-        public Instant Created { get; set; }
-        public Instant? Started { get; set; }
-        public Instant? Updated { get; set; }
-        public Instant? Ended { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime? Started { get; set; }
+        public DateTime? Updated { get; set; }
+        public DateTime? Ended { get; set; }
 
         public long ExpectedCount { get; set; }
         public long SuccessCount { get; set; }

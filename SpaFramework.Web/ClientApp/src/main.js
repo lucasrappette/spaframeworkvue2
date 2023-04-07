@@ -37,6 +37,7 @@ import FormPageTemplate from './components/Common/FormPageTemplate.vue'
 import ListPageTemplate from './components/Common/ListPageTemplate.vue'
 import FormTemplate from './components/Common/FormTemplate.vue'
 import FilteredTable from './components/Common/FilteredTable.vue'
+import PivotTable from './components/Common/PivotTable.vue'
 import ContentBlock from './components/Common/ContentBlock.vue'
 import Steps from './components/Common/Steps.vue'
 
@@ -88,6 +89,7 @@ Vue.component('form-page-template', FormPageTemplate);
 Vue.component('list-page-template', ListPageTemplate);
 Vue.component('form-template', FormTemplate);
 Vue.component('filtered-table', FilteredTable);
+Vue.component('pivot-table', PivotTable);
 Vue.component('content-block', ContentBlock);
 Vue.component('steps', Steps);
 

@@ -1,5 +1,4 @@
 ﻿using SpaFramework.Core.Models;
-using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -40,8 +39,8 @@ namespace SpaFramework.App.Models.Data.Clients
         public Guid ClientId { get; set; }
         public Client Client { get; set; }
 
-        public LocalDate StartDate { get; set; }
-        public LocalDate EndDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
 
         public ProjectState State { get; set; }
     }

@@ -309,8 +309,8 @@ namespace SpaFramework.App.DAL
                 Id = Guid.NewGuid(),
                 ClientId = acmeId,
                 Name = "Operation Purple Midnight",
-                StartDate = new NodaTime.LocalDate(2021, 1, 1),
-                EndDate = new NodaTime.LocalDate(2022, 12, 31),
+                StartDate = new DateTime(2021, 1, 1),
+                EndDate = new DateTime(2022, 12, 31),
                 State = ProjectState.Open
             });
 
@@ -319,8 +319,8 @@ namespace SpaFramework.App.DAL
                 Id = Guid.NewGuid(),
                 ClientId = northwoodsId,
                 Name = "Rapidest",
-                StartDate = new NodaTime.LocalDate(2016, 9, 1),
-                EndDate = new NodaTime.LocalDate(2019, 3, 30),
+                StartDate = new DateTime(2016, 9, 1),
+                EndDate = new DateTime(2019, 3, 30),
                 State = ProjectState.Closed
             });
 
@@ -329,8 +329,8 @@ namespace SpaFramework.App.DAL
                 Id = Guid.NewGuid(),
                 ClientId = northwoodsId,
                 Name = "Rapidester",
-                StartDate = new NodaTime.LocalDate(2021, 3, 1),
-                EndDate = new NodaTime.LocalDate(2021, 6, 30),
+                StartDate = new DateTime(2021, 3, 1),
+                EndDate = new DateTime(2021, 6, 30),
                 State = ProjectState.OnHold
             });
 
@@ -339,8 +339,8 @@ namespace SpaFramework.App.DAL
                 Id = Guid.NewGuid(),
                 ClientId = northwoodsId,
                 Name = "Rapidesterester",
-                StartDate = new NodaTime.LocalDate(2021, 7, 1),
-                EndDate = new NodaTime.LocalDate(2022, 6, 30),
+                StartDate = new DateTime(2021, 7, 1),
+                EndDate = new DateTime(2022, 6, 30),
                 State = ProjectState.Open
             });
         }

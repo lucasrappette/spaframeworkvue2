@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 using SpaFramework.App;
 using SpaFramework.Worker.BackgroundServices;
 using SpaFramework.Worker.Processors;
-using NodaTime;
 using Serilog;
 using Serilog.Filters;
 using System;
@@ -114,7 +113,6 @@ namespace SpaFramework.Worker
                     services.AddDataServices(hostContext.Configuration);
                     services.AddAppServices();
 
-                    services.AddSingleton<IClock>(SystemClock.Instance);
 
                     services.AddSingleton<SingletonBackgroundServicesHost, SingletonBackgroundServicesHost>();
 

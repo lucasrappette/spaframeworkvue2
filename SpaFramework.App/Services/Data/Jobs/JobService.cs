@@ -7,7 +7,6 @@ using SpaFramework.App.DAL;
 using SpaFramework.App.Models.Data.Accounts;
 using SpaFramework.App.Models.Data.Jobs;
 using SpaFramework.Core.Models;
-using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +17,9 @@ namespace SpaFramework.App.Services.Data.Jobs
 {
     public class JobService : EntityWriteService<Job, Guid>
     {
-        private readonly IClock _clock;
 
-        public JobService(ApplicationDbContext dbContext, IConfiguration configuration, UserManager<ApplicationUser> userManager, IValidator<Job> validator, ILogger<EntityWriteService<Job, Guid>> logger, IClock clock) : base(dbContext, configuration, userManager, validator, logger)
+        public JobService(ApplicationDbContext dbContext, IConfiguration configuration, UserManager<ApplicationUser> userManager, IValidator<Job> validator, ILogger<EntityWriteService<Job, Guid>> logger) : base(dbContext, configuration, userManager, validator, logger)
         {
-            _clock = clock;
         }
 
         protected override async Task<IQueryable<Job>> ApplyIdFilter(IQueryable<Job> queryable, Guid id)
@@ -59,7 +56,7 @@ namespace SpaFramework.App.Services.Data.Jobs
                 var sqlCommand = sqlConnection.CreateCommand();
                 sqlCommand.CommandText = $"UPDATE Jobs SET {columnName} = {columnName} + 1, Updated = @Timestamp OUTPUT INSERTED.ExpectedCount, INSERTED.SuccessCount, INSERTED.FailureCount WHERE Id = @JobId";
                 sqlCommand.Parameters.Add(new SqlParameter("@JobId", jobId));
-                sqlCommand.Parameters.Add(new SqlParameter("@Timestamp", _clock.GetCurrentInstant().ToDateTimeUtc()));
+                sqlCommand.Parameters.Add(new SqlParameter("@Timestamp", DateTime.UtcNow));
 
                 var sqlDataReader = await sqlCommand.ExecuteReaderAsync();
                 if (await sqlDataReader.ReadAsync())
@@ -76,7 +73,7 @@ namespace SpaFramework.App.Services.Data.Jobs
                     sqlCommand = sqlConnection.CreateCommand();
                     sqlCommand.CommandText = "UPDATE Jobs SET Updated = @Timestamp, Ended = @Timestamp WHERE Id = @JobId";
                     sqlCommand.Parameters.Add(new SqlParameter("@JobId", jobId));
-                    sqlCommand.Parameters.Add(new SqlParameter("@Timestamp", _clock.GetCurrentInstant().ToDateTimeUtc()));
+                    sqlCommand.Parameters.Add(new SqlParameter("@Timestamp", DateTime.UtcNow));
 
                     await sqlCommand.ExecuteNonQueryAsync();
                 }
