@@ -20,6 +20,7 @@ export default {
       { path: '/applicationUser', name: 'Users' },
       { path: '/contentBlock', name: 'Content Blocks' },
       { path: '/job', name: 'Background Jobs' },
+      { path: '/clientContact', name: 'Contacts' },
     ],
     stateSelectOptions: [
       { text: "", value: null },
@@ -121,6 +122,13 @@ export default {
       pendingResolves: [],
       pendingRejects: []
     },
+    applicationUsers: {
+      loadState: STATE_UNLOADED,
+      values: [],
+      selectOptions: [],
+      pendingResolves: [],
+      pendingRejects: []
+    },
     clients: {
       loadState: STATE_UNLOADED,
       values: [],
@@ -176,11 +184,27 @@ export default {
 
       state.applicationRoles.loadState = STATE_LOADED;
     },
+    LOAD_APPLICATION_USERS(state, values) {
+      state.applicationUsers.values = values;
+
+      state.applicationUsers.selectOptions = values.map(x => ({
+        text: x.firstName + " " + x.lastName,
+        value: x.id,
+        sortOrder: x.firstName,
+      }));
+
+      state.applicationUsers.selectOptions.unshift({
+        text: '',
+        value: null
+      });
+
+      state.applicationUsers.loadState = STATE_LOADED;
+    },
     LOAD_CLIENTS(state, values) {
       state.clients.values = values;
 
       state.clients.selectOptions = values.map(x => ({
-        text: x.abbreviation + ' (' + x.name + ')',
+        text: x.name,
         value: x.id
       }));
 
@@ -322,15 +346,33 @@ export default {
       });
       dispatch('loadProjects');
     },
+    loadApplicationUsers({ commit, dispatch }) {
+      return dispatch('loadValues', { 
+        type: 'applicationUsers', 
+        commitType: 'APPLICATION_USERS', 
+        url: '/api/applicationUser'
+      });
+    },
+    reloadApplicationUsers({ commit, dispatch }) {
+      commit('SET_LOAD_STATE', {
+        type: 'applicationUsers',
+        loadState: STATE_UNLOADED
+      });
+      dispatch('loadApplicationUsers');
+    },
     loadCachedData({ commit, dispatch }) {
       dispatch('loadProjects');
       dispatch('loadClients');
       dispatch('loadApplicationRoles');
+      dispatch('loadWorkRoles');
+      dispatch('loadApplicationUsers');
     },
     reloadCachedData({ commit, dispatch }) {
       dispatch('reloadProjects');
       dispatch('reloadClients');
       dispatch('reloadApplicationRoles');
+      dispatch('reloadWorkRoles');
+      dispatch('reloadApplicationUsers');
     }
   },
   getters: {

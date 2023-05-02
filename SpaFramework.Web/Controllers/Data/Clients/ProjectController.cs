@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SpaFramework.App.Models.Data.Clients;
-using SpaFramework.DTO.Clients;
 
 namespace SpaFramework.Web.Controllers.Data.Clients
 {

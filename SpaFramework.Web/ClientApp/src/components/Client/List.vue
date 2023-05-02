@@ -33,14 +33,7 @@ export default {
             sortable: true,
             type: 'text'
           },
-          {
-            key: 'abbreviation',
-            name: 'Abbreviation',
-            visible: true,
-            sortable: true,
-            type: 'text'
-          },
-          {
+	  {
             key: 'clientStats.numberOfProjects',
             name: 'Number of Projects',
             visible: true,

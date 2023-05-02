@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SpaFramework.App.Models.Data.Accounts;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -35,10 +36,26 @@ namespace SpaFramework.App.Models.Data.Clients
         [MaxLength(50)]
         public string Name { get; set; }
 
-        [MaxLength(10)]
-        public string Abbreviation { get; set; }
+        public string DescriptionNotes { get; set; }
+
+        public string AddressLineOne { get; set; }
+        public string AddressLineTwo { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string PostalCode { get; set; }
+        public decimal Mileage { get; set; }
+        public string PhoneNumber { get; set; }
+        public string ClientId { get; set; }
+        public bool Inactive { get; set; }
+
+        public Guid SalesRepApplicationUserId { get; set; }
+        public ApplicationUser SalesRep { get; set; }
+
+        public Guid PrimaryProjectManagerApplicationUserId { get; set; }
+        public ApplicationUser PrimaryProjectManager { get; set; }
 
         public List<Project> Projects { get; set; }
+        public List<ClientContact> ClientContacts { get; set; }
         public ClientStats ClientStats { get; set; }
     }
 }

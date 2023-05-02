@@ -1,12 +1,8 @@
 <template>
   <form-page-template :page-title="pageTitle" :item="item">
-    <b-nav pills v-if="item">
-      <b-nav-item :to="{ path: this.$route.path + '/clientContact' }">Contacts</b-nav-item>
-    </b-nav>
-    <hr />
-    <client-fields :item="item" v-on:submit="onSubmit" v-on:cancel="onCancel">
-      <template v-slot:save>Save Client</template>
-    </client-fields>
+    <client-contact-fields :item="item" v-on:submit="onSubmit" v-on:cancel="onCancel">
+      <template v-slot:save>Save Client Contact</template>
+    </client-contact-fields>
   </form-page-template>
 </template>
 
@@ -16,7 +12,7 @@ import FormMixin from '../Mixins/FormMixin.vue';
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
 export default {
-  name: "ClientEdit",
+  name: "ClientContactEdit",
   mixins: [FormMixin],
   props: ['id'],
   data() {
@@ -26,25 +22,23 @@ export default {
   },
   computed: {
     itemTitle: function () {
-      if (!this.item)
-        return null;
-      return this.item.name;
+      return null
     },
     pageTitle: function () {
-      return 'Client: ' + this.itemTitle;
+      return 'Edit Client Contact';
     }
   },
   methods: {
     ...mapActions('cachedData', ['setKnownPageName']),
     load: function () {
-      let url = '/api/client/' + this.id + '?context=WebApiElevated';
+      let url = '/api/clientContact/' + this.id;
 
       axios
         .get(url)
         .then(response => {
           this.item = response.data;
 
-          this.setKnownPageName({ path: this.$route.path, name: this.item.name});
+          this.setKnownPageName({ path: this.$route.path, name: this.item.region});
         })
         .catch(error => {
           console.log(error);
@@ -54,21 +48,21 @@ export default {
       this.goToParentPage();
     },
     onSubmit(evt) {
-      let url = '/api/client/' + this.id + '?context=WebApiElevated';
+      let url = '/api/clientContact/' + this.id;
 
       axios
         .put(url, this.item)
         .then(response => {
           this.item = response.data;
-          this.$store.dispatch('cachedData/reloadClients');
-          this.processEditSuccessResponse(response, 'Client');
+
+          this.processEditSuccessResponse(response, 'Client Contact');
 
           this.goToParentPage();
         })
         .catch(error => {
-          this.processEditErrorResponse(error, 'Client');
+          this.processEditErrorResponse(error, 'Client Contact');
         });
-    }
+    }    
   },
   mounted () {
     this.load();

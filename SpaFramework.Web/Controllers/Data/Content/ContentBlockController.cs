@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using SpaFramework.Web.Middleware.Exceptions;
 using SpaFramework.App.Models.Data.Content;
-using SpaFramework.DTO.Content;
 using SpaFramework.App.Models.Service.Content;
 using SpaFramework.App;
 using SpaFramework.App.Services.Data;

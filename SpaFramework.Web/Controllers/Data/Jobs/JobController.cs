@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using SpaFramework.App.Models.Data.Jobs;
 using SpaFramework.App.Services.Data;
-using SpaFramework.DTO.Jobs;
 using System;
 
 namespace SpaFramework.Web.Controllers.Data.Jobs

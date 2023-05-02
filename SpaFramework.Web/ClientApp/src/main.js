@@ -69,6 +69,10 @@ import ProjectAdd from './components/Project/Add.vue'
 import ProjectEdit from './components/Project/Edit.vue'
 import JobList from './components/Job/List.vue'
 
+import ClientContactList from './components/ClientContact/List.vue'
+import ClientContactFields from './components/ClientContact/Fields.vue'
+import ClientContactAdd from './components/ClientContact/Add.vue'
+import ClientContactEdit from './components/ClientContact/Edit.vue'
 Vue.use(VueRouter);
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
@@ -112,6 +116,8 @@ Vue.component('content-block-fields', ContentBlockFields);
 Vue.component('client-fields', ClientFields);
 Vue.component('project-fields', ProjectFields);
 
+Vue.component('client-contact-fields', ClientContactFields);
+
 Vue.config.productionTip = false;
 
 const routes = [
@@ -133,6 +139,9 @@ const routes = [
   { path: '/project/:id', component: ProjectEdit, props: route => ({ id: route.params.id })},
   { path: '/page/:slug', component: ContentBlockView, props: true, meta: { public: true } },
   { path: '/job', component: JobList },
+  { path: '/client/:clientId/clientContact', component: ClientContactList, props: route => ({ clientId: route.params.clientId })},
+  { path: '/client/:clientId/clientContact/add', component: ClientContactAdd, props: route => ({ clientId: route.params.clientId })},
+  { path: '/client/:clientId/clientContact/:id', component: ClientContactEdit, props: route => ({ clientId: route.params.clientId, id: route.params.id })},
 ];
 
 export const router = new VueRouter({

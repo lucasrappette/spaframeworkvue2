@@ -13,9 +13,9 @@ using SpaFramework.App.Models.Data.Clients;
 namespace SpaFramework.Web.Controllers.Data.Clients
 {
     [Authorize]
-    public class ClientController : EntityWriteController<Client, IEntityWriteService<Client, Guid>, Guid>
+    public class ClientContactController : EntityWriteController<ClientContact, IEntityWriteService<ClientContact, Guid>, Guid>
     {
-        public ClientController(IConfiguration configuration, IEntityWriteService<Client, Guid> service) : base(configuration, service)
+        public ClientContactController(IConfiguration configuration, IEntityWriteService<ClientContact, Guid> service) : base(configuration, service)
         {
         }
     }

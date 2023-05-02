@@ -36,6 +36,7 @@ namespace SpaFramework.App.DAL
         public DbSet<Client> Clients { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<ClientStats> ClientStats { get; set; }
+        public DbSet<ClientContact> ClientContacts { get; set; }
 
         public DbSet<Job> Jobs { get; set; }
         public DbSet<JobItem> JobItems { get; set; }
@@ -107,12 +108,20 @@ namespace SpaFramework.App.DAL
             modelBuilder.Entity<Project>()
                 .ToTable("Projects", b => b.IsTemporal());
 
+            modelBuilder.Entity<ClientContact>()
+                .ToTable("ClientContacts", b => b.IsTemporal());
+
             modelBuilder.Entity<Client>()
-                .HasIndex(x => x.Abbreviation);
+                .HasIndex(x => x.Id);
 
             modelBuilder.Entity<Project>()
                 .HasOne(x => x.Client)
                 .WithMany(x => x.Projects)
+                .HasForeignKey(x => x.ClientId);
+
+            modelBuilder.Entity<ClientContact>()
+                .HasOne(x => x.Client)
+                .WithMany(x => x.ClientContacts)
                 .HasForeignKey(x => x.ClientId);
 
             modelBuilder.Entity<ClientStats>()
@@ -291,26 +300,41 @@ namespace SpaFramework.App.DAL
 
         private void SeedAppData(ModelBuilder modelBuilder)
         {
-            var acmeId = Guid.NewGuid();
+            var alphabetId = Guid.NewGuid();
             var northwoodsId = Guid.NewGuid();
+            var adminId = Guid.Parse("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be");
             modelBuilder.Entity<Client>().HasData(new Client()
             {
-                Id = acmeId,
-                Name = "Acme, Inc.",
-                Abbreviation = "ACME"
+                Id = alphabetId,
+                Name = "Alphabet Inc.",
+                AddressLineOne = "1600 Amphitheatre Pkwy",
+                City = "Mountain View",
+                State = "CA",
+                PostalCode = "94043",
+                DescriptionNotes = "This client is google",
+                PhoneNumber = "650-253-0000",
+                PrimaryProjectManagerApplicationUserId = adminId,
+                SalesRepApplicationUserId = adminId,
             });
 
             modelBuilder.Entity<Client>().HasData(new Client()
             {
                 Id = northwoodsId,
                 Name = "Northwoods",
-                Abbreviation = "NWS"
+                AddressLineOne = "1552 E Capitol Dr",
+                City = "Shorewood",
+                State = "WI",
+                PostalCode = "53211",
+                DescriptionNotes = "This client is us",
+                PhoneNumber = "650-253-0000",
+                PrimaryProjectManagerApplicationUserId = adminId,
+                SalesRepApplicationUserId = adminId,
             });
 
             modelBuilder.Entity<Project>().HasData(new Project()
             {
                 Id = Guid.NewGuid(),
-                ClientId = acmeId,
+                ClientId = alphabetId,
                 Name = "Operation Purple Midnight",
                 StartDate = new DateTime(2021, 1, 1),
                 EndDate = new DateTime(2022, 12, 31),

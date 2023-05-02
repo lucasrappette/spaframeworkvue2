@@ -45,7 +45,6 @@
             <template #button-content>
               <b-icon icon="cone-striped" />
             </template>
-            <b-dropdown-item to="/log/viewer">Log Viewer</b-dropdown-item>
             <b-dropdown-item href="/healthchecks-ui" target="_blank">Health Checks</b-dropdown-item>
             <b-dropdown-item href="/swagger" target="_blank">Swagger</b-dropdown-item>
             <b-dropdown-item href="/documentation" target="_blank">Data Documentation</b-dropdown-item>

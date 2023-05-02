@@ -3,11 +3,10 @@
     <b-row>
       <b-col>
         <b-card title="Test Accounts">
-          <p>There are several test accounts:</p>
+          <p>There is just one test account right now:</p>
           <ul>
-            <li>john.doe@test.com</li>
-            <li>jane.smith@test.com</li>
-            <li>jorge.garcia@test.com</li>
+            <li>Username: admin</li>
+            <li>Password: abcd1234</li>
           </ul>
         </b-card>
       </b-col>

@@ -51,33 +51,6 @@ namespace SpaFramework.App.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Clients",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConcurrencyTimestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Abbreviation = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
-                        .Annotation("SqlServer:IsTemporal", true)
-                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
-                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart"),
-                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
-                        .Annotation("SqlServer:IsTemporal", true)
-                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
-                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Clients", x => x.Id);
-                })
-                .Annotation("SqlServer:IsTemporal", true)
-                .Annotation("SqlServer:TemporalHistoryTableName", "ClientsHistory")
-                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
-                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
-                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
-
-            migrationBuilder.CreateTable(
                 name: "ContentBlocks",
                 columns: table => new
                 {
@@ -262,6 +235,56 @@ namespace SpaFramework.App.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Clients",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConcurrencyTimestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    DescriptionNotes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AddressLineOne = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AddressLineTwo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Mileage = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClientId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Inactive = table.Column<bool>(type: "bit", nullable: false),
+                    SalesRepApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SalesRepId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PrimaryProjectManagerApplicationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PrimaryProjectManagerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart"),
+                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Clients", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Clients_AspNetUsers_PrimaryProjectManagerId",
+                        column: x => x.PrimaryProjectManagerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Clients_AspNetUsers_SalesRepId",
+                        column: x => x.SalesRepId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                })
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "ClientsHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
+
+            migrationBuilder.CreateTable(
                 name: "ExternalCredentials",
                 columns: table => new
                 {
@@ -281,42 +304,6 @@ namespace SpaFramework.App.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "Projects",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConcurrencyTimestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "date", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "date", nullable: false),
-                    State = table.Column<int>(type: "int", nullable: false),
-                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
-                        .Annotation("SqlServer:IsTemporal", true)
-                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
-                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart"),
-                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
-                        .Annotation("SqlServer:IsTemporal", true)
-                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
-                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Projects_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("SqlServer:IsTemporal", true)
-                .Annotation("SqlServer:TemporalHistoryTableName", "ProjectsHistory")
-                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
-                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
-                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
 
             migrationBuilder.CreateTable(
                 name: "JobItems",
@@ -352,29 +339,105 @@ namespace SpaFramework.App.Migrations
                 .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
                 .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
 
+            migrationBuilder.CreateTable(
+                name: "ClientContacts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConcurrencyTimestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SendInvoice = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart"),
+                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientContacts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientContacts_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "ClientContactsHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConcurrencyTimestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    State = table.Column<int>(type: "int", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart"),
+                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false)
+                        .Annotation("SqlServer:IsTemporal", true)
+                        .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                        .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_Clients_ClientId",
+                        column: x => x.ClientId,
+                        principalTable: "Clients",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "ProjectsHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("18b6e930-29db-4c03-88e9-840adf59f2f7"), "f7d0c7b7-c4c5-4bad-8e71-a57c11a11ee5", "ContentManager", "ContentManager" },
-                    { new Guid("558669b9-49a9-4520-90b8-51ba5b12c33e"), "ede6fe63-1651-4ebb-997d-b53f9149409e", "ProjectManager", "ProjectManager" },
-                    { new Guid("9770d744-5c62-4d76-a4ef-163f94b33dad"), "1184d0d3-9ea3-4865-b9d7-a65a3b68d1ed", "SuperAdmin", "SuperAdmin" },
-                    { new Guid("b67f4c23-5886-41ee-bbbb-6ae377f8f2ad"), "6c910474-e1cc-4db7-baaa-48f9e7333830", "ProjectViewer", "ProjectViewer" }
+                    { new Guid("18b6e930-29db-4c03-88e9-840adf59f2f7"), "eca17280-efb3-4666-b2ce-d3077250fd01", "ContentManager", "ContentManager" },
+                    { new Guid("558669b9-49a9-4520-90b8-51ba5b12c33e"), "45f6386d-8d29-4308-b136-019ca72ecc99", "ProjectManager", "ProjectManager" },
+                    { new Guid("9770d744-5c62-4d76-a4ef-163f94b33dad"), "12a8c87b-876c-4e8b-90a3-7e938a8c741b", "SuperAdmin", "SuperAdmin" },
+                    { new Guid("b67f4c23-5886-41ee-bbbb-6ae377f8f2ad"), "32f3c7dc-f6f0-423a-b167-9932cdee5262", "ProjectViewer", "ProjectViewer" }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), 0, "be7b587e-37ca-4584-9c85-a831384b8389", "admin@test.com", true, "Admin", "Admin", false, null, "ADMIN@TEST.COM", "ADMIN", "AQAAAAEAACcQAAAAEGxYFf+OZ0fW0ym/mAokEEOnOlDx/jwLScALn6RRKG6Tq7NWPq89ZCSicLDWdk1fDA==", null, false, "", false, "admin" });
+                values: new object[] { new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), 0, "b7026d22-b0a6-4c5e-b4e3-81952dcabf2b", "admin@test.com", true, "Admin", "Admin", false, null, "ADMIN@TEST.COM", "ADMIN", "AQAAAAEAACcQAAAAEKHQpI3RttztLx7cLDltT97xF3c1meH2knFOxba8LpI3o3mKERiDuNAn2X6mtTxQSw==", null, false, "", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "Clients",
-                columns: new[] { "Id", "Abbreviation", "Name" },
+                columns: new[] { "Id", "AddressLineOne", "AddressLineTwo", "City", "ClientId", "DescriptionNotes", "Inactive", "Mileage", "Name", "PhoneNumber", "PostalCode", "PrimaryProjectManagerApplicationUserId", "PrimaryProjectManagerId", "SalesRepApplicationUserId", "SalesRepId", "State" },
                 values: new object[,]
                 {
-                    { new Guid("1338df5c-99f3-4d21-97af-4cf7e14f9620"), "ACME", "Acme, Inc." },
-                    { new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"), "NWS", "Northwoods" }
+                    { new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"), "1552 E Capitol Dr", null, "Shorewood", null, "This client is us", false, 0m, "Northwoods", "650-253-0000", "53211", new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), null, new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), null, "WI" },
+                    { new Guid("6ebc430a-a0ee-49e9-9cb7-69e99cf7aaba"), "1600 Amphitheatre Pkwy", null, "Mountain View", null, "This client is google", false, 0m, "Alphabet Inc.", "650-253-0000", "94043", new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), null, new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), null, "CA" }
                 });
 
             migrationBuilder.InsertData(
@@ -382,11 +445,11 @@ namespace SpaFramework.App.Migrations
                 columns: new[] { "Id", "AllowedTokens", "Description", "IsPage", "Slug", "Title", "Value" },
                 values: new object[,]
                 {
-                    { new Guid("436e16ed-e5c8-4aaa-97fc-843f18e5aa94"), null, "", true, "placeholder", "Placeholder", "This is a placeholder page. The underlying functionality has not yet been implemented." },
-                    { new Guid("816d2f1c-e174-42c0-abe0-2e36379da725"), null, "Content that appears on the Home/Dashboard page", false, "dashboard", "Hello", "Hello, world. Or whoever else is here. This content is editable within the app." },
-                    { new Guid("92077e8e-45ce-4ecf-aa4b-17a5bfe91118"), null, "The help page that appears in the top nav", true, "help", "Help!", "Need help? Don't we all." },
-                    { new Guid("c827a7ec-2dbb-4530-a1c5-9562b03cfdcc"), null, "The text that appears on the About page", true, "about", "About Us", "About us..." },
-                    { new Guid("da5a645b-1951-43bc-b032-eedead09d15f"), "[{\"Token\":\"passwordResetUrl\",\"Description\":\"The URL for the user to reset their password\"}]", "The text that appears in a password reset message", false, "password-reset-email", "Reset Your Password", "To reset your account, follow this link: %passwordResetUrl%" }
+                    { new Guid("20933018-b283-4744-9ce1-3f850a73de1e"), null, "Content that appears on the Home/Dashboard page", false, "dashboard", "Hello", "Hello, world. Or whoever else is here. This content is editable within the app." },
+                    { new Guid("31449cfc-752a-48c1-a48b-6f970e5e714c"), "[{\"Token\":\"passwordResetUrl\",\"Description\":\"The URL for the user to reset their password\"}]", "The text that appears in a password reset message", false, "password-reset-email", "Reset Your Password", "To reset your account, follow this link: %passwordResetUrl%" },
+                    { new Guid("400d6f99-1ed6-4d3e-9717-262818edbf28"), null, "The help page that appears in the top nav", true, "help", "Help!", "Need help? Don't we all." },
+                    { new Guid("686caf21-04fa-44da-b8be-8bbee91f1b78"), null, "", true, "placeholder", "Placeholder", "This is a placeholder page. The underlying functionality has not yet been implemented." },
+                    { new Guid("e5175868-a06e-467f-8add-7169290c6fbf"), null, "The text that appears on the About page", true, "about", "About Us", "About us..." }
                 });
 
             migrationBuilder.InsertData(
@@ -394,10 +457,10 @@ namespace SpaFramework.App.Migrations
                 columns: new[] { "RoleId", "UserId", "Id" },
                 values: new object[,]
                 {
-                    { new Guid("18b6e930-29db-4c03-88e9-840adf59f2f7"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("702e4bc5-5235-44ea-9b40-f9af13324c76") },
-                    { new Guid("558669b9-49a9-4520-90b8-51ba5b12c33e"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("cf761526-4b84-447b-be8a-77b90ae609ee") },
-                    { new Guid("9770d744-5c62-4d76-a4ef-163f94b33dad"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("8493be7b-63e9-4a70-b39f-f706a82e7d2d") },
-                    { new Guid("b67f4c23-5886-41ee-bbbb-6ae377f8f2ad"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("25610020-e4e8-4bc2-a7b3-2d65a6a133de") }
+                    { new Guid("18b6e930-29db-4c03-88e9-840adf59f2f7"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("8c5e7bb8-498c-48bb-996f-8c5348a2daab") },
+                    { new Guid("558669b9-49a9-4520-90b8-51ba5b12c33e"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("17646219-cc5b-4f44-a48e-bae5e702eebd") },
+                    { new Guid("9770d744-5c62-4d76-a4ef-163f94b33dad"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("f4cb4d20-9f11-493f-9772-b3e66afda056") },
+                    { new Guid("b67f4c23-5886-41ee-bbbb-6ae377f8f2ad"), new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"), new Guid("b0cfef87-9dbe-402b-88b1-927e36daefac") }
                 });
 
             migrationBuilder.InsertData(
@@ -405,10 +468,10 @@ namespace SpaFramework.App.Migrations
                 columns: new[] { "Id", "ClientId", "EndDate", "Name", "StartDate", "State" },
                 values: new object[,]
                 {
-                    { new Guid("27956b1a-4837-4898-b141-cb457e4a813c"), new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"), new DateTime(2021, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rapidester", new DateTime(2021, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2 },
-                    { new Guid("6d6001b8-1c89-43c7-a499-24f0ea21c21e"), new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"), new DateTime(2019, 3, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rapidest", new DateTime(2016, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3 },
-                    { new Guid("9b64a99f-9a8a-4a0f-a640-181568149975"), new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"), new DateTime(2022, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rapidesterester", new DateTime(2021, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 },
-                    { new Guid("c92444a6-fb4a-441b-bb83-7dc0fbc315e0"), new Guid("1338df5c-99f3-4d21-97af-4cf7e14f9620"), new DateTime(2022, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), "Operation Purple Midnight", new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 }
+                    { new Guid("65802cdc-eb2d-4c68-ad1e-c8ce16c147f5"), new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"), new DateTime(2019, 3, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rapidest", new DateTime(2016, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3 },
+                    { new Guid("a7a3ae7d-7a8d-4580-b0cc-e921d5d5b608"), new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"), new DateTime(2022, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rapidesterester", new DateTime(2021, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 },
+                    { new Guid("b37cd95c-8e46-4898-96c2-2f8619f48de5"), new Guid("6ebc430a-a0ee-49e9-9cb7-69e99cf7aaba"), new DateTime(2022, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), "Operation Purple Midnight", new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 },
+                    { new Guid("f6aa818d-ecad-47ba-8ec4-a50a2e2ae639"), new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"), new DateTime(2021, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified), "Rapidester", new DateTime(2021, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -457,9 +520,24 @@ namespace SpaFramework.App.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Clients_Abbreviation",
+                name: "IX_ClientContacts_ClientId",
+                table: "ClientContacts",
+                column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_Id",
                 table: "Clients",
-                column: "Abbreviation");
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_PrimaryProjectManagerId",
+                table: "Clients",
+                column: "PrimaryProjectManagerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Clients_SalesRepId",
+                table: "Clients",
+                column: "SalesRepId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ContentBlocks_Slug",
@@ -507,6 +585,14 @@ namespace SpaFramework.App.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ClientContacts")
+                .Annotation("SqlServer:IsTemporal", true)
+                .Annotation("SqlServer:TemporalHistoryTableName", "ClientContactsHistory")
+                .Annotation("SqlServer:TemporalHistoryTableSchema", null)
+                .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
+                .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
+
+            migrationBuilder.DropTable(
                 name: "ContentBlocks")
                 .Annotation("SqlServer:IsTemporal", true)
                 .Annotation("SqlServer:TemporalHistoryTableName", "ContentBlocksHistory")
@@ -540,9 +626,6 @@ namespace SpaFramework.App.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Jobs")
                 .Annotation("SqlServer:IsTemporal", true)
                 .Annotation("SqlServer:TemporalHistoryTableName", "JobsHistory")
@@ -558,6 +641,8 @@ namespace SpaFramework.App.Migrations
                 .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
                 .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart");
 
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

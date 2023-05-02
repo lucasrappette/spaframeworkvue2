@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using SpaFramework.App.Models.Data.Clients;
 using SpaFramework.App.Services.Data;
-using SpaFramework.DTO.Clients;
 using System;
 using System.Collections.Generic;
 using System.Linq;

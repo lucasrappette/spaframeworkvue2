@@ -154,28 +154,28 @@ namespace SpaFramework.App.Migrations
                         new
                         {
                             Id = new Guid("9770d744-5c62-4d76-a4ef-163f94b33dad"),
-                            ConcurrencyStamp = "1184d0d3-9ea3-4865-b9d7-a65a3b68d1ed",
+                            ConcurrencyStamp = "12a8c87b-876c-4e8b-90a3-7e938a8c741b",
                             Name = "SuperAdmin",
                             NormalizedName = "SuperAdmin"
                         },
                         new
                         {
                             Id = new Guid("558669b9-49a9-4520-90b8-51ba5b12c33e"),
-                            ConcurrencyStamp = "ede6fe63-1651-4ebb-997d-b53f9149409e",
+                            ConcurrencyStamp = "45f6386d-8d29-4308-b136-019ca72ecc99",
                             Name = "ProjectManager",
                             NormalizedName = "ProjectManager"
                         },
                         new
                         {
                             Id = new Guid("b67f4c23-5886-41ee-bbbb-6ae377f8f2ad"),
-                            ConcurrencyStamp = "6c910474-e1cc-4db7-baaa-48f9e7333830",
+                            ConcurrencyStamp = "32f3c7dc-f6f0-423a-b167-9932cdee5262",
                             Name = "ProjectViewer",
                             NormalizedName = "ProjectViewer"
                         },
                         new
                         {
                             Id = new Guid("18b6e930-29db-4c03-88e9-840adf59f2f7"),
-                            ConcurrencyStamp = "f7d0c7b7-c4c5-4bad-8e71-a57c11a11ee5",
+                            ConcurrencyStamp = "eca17280-efb3-4666-b2ce-d3077250fd01",
                             Name = "ContentManager",
                             NormalizedName = "ContentManager"
                         });
@@ -259,7 +259,7 @@ namespace SpaFramework.App.Migrations
                         {
                             Id = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "be7b587e-37ca-4584-9c85-a831384b8389",
+                            ConcurrencyStamp = "b7026d22-b0a6-4c5e-b4e3-81952dcabf2b",
                             Email = "admin@test.com",
                             EmailConfirmed = true,
                             FirstName = "Admin",
@@ -267,7 +267,7 @@ namespace SpaFramework.App.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@TEST.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGxYFf+OZ0fW0ym/mAokEEOnOlDx/jwLScALn6RRKG6Tq7NWPq89ZCSicLDWdk1fDA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKHQpI3RttztLx7cLDltT97xF3c1meH2knFOxba8LpI3o3mKERiDuNAn2X6mtTxQSw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -301,25 +301,25 @@ namespace SpaFramework.App.Migrations
                         {
                             UserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
                             RoleId = new Guid("9770d744-5c62-4d76-a4ef-163f94b33dad"),
-                            Id = new Guid("8493be7b-63e9-4a70-b39f-f706a82e7d2d")
+                            Id = new Guid("f4cb4d20-9f11-493f-9772-b3e66afda056")
                         },
                         new
                         {
                             UserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
                             RoleId = new Guid("558669b9-49a9-4520-90b8-51ba5b12c33e"),
-                            Id = new Guid("cf761526-4b84-447b-be8a-77b90ae609ee")
+                            Id = new Guid("17646219-cc5b-4f44-a48e-bae5e702eebd")
                         },
                         new
                         {
                             UserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
                             RoleId = new Guid("b67f4c23-5886-41ee-bbbb-6ae377f8f2ad"),
-                            Id = new Guid("25610020-e4e8-4bc2-a7b3-2d65a6a133de")
+                            Id = new Guid("b0cfef87-9dbe-402b-88b1-927e36daefac")
                         },
                         new
                         {
                             UserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
                             RoleId = new Guid("18b6e930-29db-4c03-88e9-840adf59f2f7"),
-                            Id = new Guid("702e4bc5-5235-44ea-9b40-f9af13324c76")
+                            Id = new Guid("8c5e7bb8-498c-48bb-996f-8c5348a2daab")
                         });
                 });
 
@@ -358,14 +358,31 @@ namespace SpaFramework.App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Abbreviation")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                    b.Property<string>("AddressLineOne")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressLineTwo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("ConcurrencyTimestamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<string>("DescriptionNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Mileage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(50)
@@ -381,9 +398,34 @@ namespace SpaFramework.App.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("PeriodStart");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PrimaryProjectManagerApplicationUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PrimaryProjectManagerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SalesRepApplicationUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SalesRepId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("State")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Abbreviation");
+                    b.HasIndex("Id");
+
+                    b.HasIndex("PrimaryProjectManagerId");
+
+                    b.HasIndex("SalesRepId");
 
                     b.ToTable("Clients", (string)null);
 
@@ -401,16 +443,102 @@ namespace SpaFramework.App.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1338df5c-99f3-4d21-97af-4cf7e14f9620"),
-                            Abbreviation = "ACME",
-                            Name = "Acme, Inc."
+                            Id = new Guid("6ebc430a-a0ee-49e9-9cb7-69e99cf7aaba"),
+                            AddressLineOne = "1600 Amphitheatre Pkwy",
+                            City = "Mountain View",
+                            DescriptionNotes = "This client is google",
+                            Inactive = false,
+                            Mileage = 0m,
+                            Name = "Alphabet Inc.",
+                            PhoneNumber = "650-253-0000",
+                            PostalCode = "94043",
+                            PrimaryProjectManagerApplicationUserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
+                            SalesRepApplicationUserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
+                            State = "CA"
                         },
                         new
                         {
-                            Id = new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"),
-                            Abbreviation = "NWS",
-                            Name = "Northwoods"
+                            Id = new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"),
+                            AddressLineOne = "1552 E Capitol Dr",
+                            City = "Shorewood",
+                            DescriptionNotes = "This client is us",
+                            Inactive = false,
+                            Mileage = 0m,
+                            Name = "Northwoods",
+                            PhoneNumber = "650-253-0000",
+                            PostalCode = "53211",
+                            PrimaryProjectManagerApplicationUserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
+                            SalesRepApplicationUserId = new Guid("c9db7b0d-5889-4a71-b1a9-cf59ef2fa4be"),
+                            State = "WI"
                         });
+                });
+
+            modelBuilder.Entity("SpaFramework.App.Models.Data.Clients.ClientContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("ConcurrencyTimestamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("PeriodEnd")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("PeriodEnd");
+
+                    b.Property<DateTime>("PeriodStart")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("PeriodStart");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SendInvoice")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("ClientContacts", (string)null);
+
+                    b.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb
+                                .HasPeriodStart("PeriodStart")
+                                .HasColumnName("PeriodStart");
+                            ttb
+                                .HasPeriodEnd("PeriodEnd")
+                                .HasColumnName("PeriodEnd");
+                        }
+                    ));
                 });
 
             modelBuilder.Entity("SpaFramework.App.Models.Data.Clients.ClientStats", b =>
@@ -419,10 +547,10 @@ namespace SpaFramework.App.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("FirstStartDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("LastEndDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("NumberOfProjects")
                         .HasColumnType("int");
@@ -447,7 +575,7 @@ namespace SpaFramework.App.Migrations
                         .HasColumnType("rowversion");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasMaxLength(50)
@@ -464,7 +592,7 @@ namespace SpaFramework.App.Migrations
                         .HasColumnName("PeriodStart");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("date");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("State")
                         .HasColumnType("int");
@@ -489,8 +617,8 @@ namespace SpaFramework.App.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c92444a6-fb4a-441b-bb83-7dc0fbc315e0"),
-                            ClientId = new Guid("1338df5c-99f3-4d21-97af-4cf7e14f9620"),
+                            Id = new Guid("b37cd95c-8e46-4898-96c2-2f8619f48de5"),
+                            ClientId = new Guid("6ebc430a-a0ee-49e9-9cb7-69e99cf7aaba"),
                             EndDate = new DateTime(2022, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Operation Purple Midnight",
                             StartDate = new DateTime(2021, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -498,8 +626,8 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6d6001b8-1c89-43c7-a499-24f0ea21c21e"),
-                            ClientId = new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"),
+                            Id = new Guid("65802cdc-eb2d-4c68-ad1e-c8ce16c147f5"),
+                            ClientId = new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"),
                             EndDate = new DateTime(2019, 3, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Rapidest",
                             StartDate = new DateTime(2016, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -507,8 +635,8 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("27956b1a-4837-4898-b141-cb457e4a813c"),
-                            ClientId = new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"),
+                            Id = new Guid("f6aa818d-ecad-47ba-8ec4-a50a2e2ae639"),
+                            ClientId = new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"),
                             EndDate = new DateTime(2021, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Rapidester",
                             StartDate = new DateTime(2021, 3, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -516,8 +644,8 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9b64a99f-9a8a-4a0f-a640-181568149975"),
-                            ClientId = new Guid("da29d24f-dddf-4161-b55f-f35c6eaf593b"),
+                            Id = new Guid("a7a3ae7d-7a8d-4580-b0cc-e921d5d5b608"),
+                            ClientId = new Guid("1d95efdb-bb23-447b-825e-dd65d6882225"),
                             EndDate = new DateTime(2022, 6, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Rapidesterester",
                             StartDate = new DateTime(2021, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -585,7 +713,7 @@ namespace SpaFramework.App.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("da5a645b-1951-43bc-b032-eedead09d15f"),
+                            Id = new Guid("31449cfc-752a-48c1-a48b-6f970e5e714c"),
                             AllowedTokens = "[{\"Token\":\"passwordResetUrl\",\"Description\":\"The URL for the user to reset their password\"}]",
                             Description = "The text that appears in a password reset message",
                             IsPage = false,
@@ -595,7 +723,7 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c827a7ec-2dbb-4530-a1c5-9562b03cfdcc"),
+                            Id = new Guid("e5175868-a06e-467f-8add-7169290c6fbf"),
                             Description = "The text that appears on the About page",
                             IsPage = true,
                             Slug = "about",
@@ -604,7 +732,7 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("436e16ed-e5c8-4aaa-97fc-843f18e5aa94"),
+                            Id = new Guid("686caf21-04fa-44da-b8be-8bbee91f1b78"),
                             Description = "",
                             IsPage = true,
                             Slug = "placeholder",
@@ -613,7 +741,7 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("816d2f1c-e174-42c0-abe0-2e36379da725"),
+                            Id = new Guid("20933018-b283-4744-9ce1-3f850a73de1e"),
                             Description = "Content that appears on the Home/Dashboard page",
                             IsPage = false,
                             Slug = "dashboard",
@@ -622,7 +750,7 @@ namespace SpaFramework.App.Migrations
                         },
                         new
                         {
-                            Id = new Guid("92077e8e-45ce-4ecf-aa4b-17a5bfe91118"),
+                            Id = new Guid("400d6f99-1ed6-4d3e-9717-262818edbf28"),
                             Description = "The help page that appears in the top nav",
                             IsPage = true,
                             Slug = "help",
@@ -810,6 +938,32 @@ namespace SpaFramework.App.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
+            modelBuilder.Entity("SpaFramework.App.Models.Data.Clients.Client", b =>
+                {
+                    b.HasOne("SpaFramework.App.Models.Data.Accounts.ApplicationUser", "PrimaryProjectManager")
+                        .WithMany()
+                        .HasForeignKey("PrimaryProjectManagerId");
+
+                    b.HasOne("SpaFramework.App.Models.Data.Accounts.ApplicationUser", "SalesRep")
+                        .WithMany()
+                        .HasForeignKey("SalesRepId");
+
+                    b.Navigation("PrimaryProjectManager");
+
+                    b.Navigation("SalesRep");
+                });
+
+            modelBuilder.Entity("SpaFramework.App.Models.Data.Clients.ClientContact", b =>
+                {
+                    b.HasOne("SpaFramework.App.Models.Data.Clients.Client", "Client")
+                        .WithMany("ClientContacts")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("SpaFramework.App.Models.Data.Clients.ClientStats", b =>
                 {
                     b.HasOne("SpaFramework.App.Models.Data.Clients.Client", "Client")
@@ -857,6 +1011,8 @@ namespace SpaFramework.App.Migrations
 
             modelBuilder.Entity("SpaFramework.App.Models.Data.Clients.Client", b =>
                 {
+                    b.Navigation("ClientContacts");
+
                     b.Navigation("ClientStats");
 
                     b.Navigation("Projects");

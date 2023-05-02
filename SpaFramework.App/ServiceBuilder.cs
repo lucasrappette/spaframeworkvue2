@@ -104,6 +104,7 @@ namespace SpaFramework.App
             services.AddTransient<ContentBlockService, ContentBlockService>();
 
             services.AddTransientListReadWriteService<Client, Guid, ClientService>();
+            services.AddTransientListReadWriteService<ClientContact, Guid, ClientContactService>();
             services.AddTransientListReadWriteService<Project, Guid, ProjectService>();
             services.AddTransientListReadService<ClientStats, Guid, ClientStatsService>();
 
@@ -119,6 +120,7 @@ namespace SpaFramework.App
 
             services.AddSingleton<IValidator<Client>, ClientValidator>();
             services.AddSingleton<IValidator<Project>, ProjectValidator>();
+            services.AddSingleton<IValidator<ClientContact>, ClientContactValidator>();
 
             services.AddSingleton<IValidator<Job>, JobValidator>();
             services.AddSingleton<IValidator<JobItem>, JobItemValidator>();

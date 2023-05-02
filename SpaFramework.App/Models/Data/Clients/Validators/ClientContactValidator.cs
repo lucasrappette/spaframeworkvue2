@@ -7,14 +7,11 @@ using System.Threading.Tasks;
 
 namespace SpaFramework.App.Models.Data.Clients.Validators
 {
-    public class ClientValidator : AbstractValidator<Client>
+    public class ClientContactValidator : AbstractValidator<ClientContact>
     {
-        public ClientValidator()
+        public ClientContactValidator()
         {
-            RuleFor(x => x.Name)
-                .NotNull()
-                .NotEmpty()
-                .MaximumLength(50);
+
         }
     }
 }
