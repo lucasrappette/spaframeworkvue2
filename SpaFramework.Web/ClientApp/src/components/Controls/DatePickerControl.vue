@@ -81,7 +81,7 @@ export default {
       this.$emit('input', this.content);
     },
     isValidDate(dateString) {
-      var regEx = /^\d{4}-\d{2}-\d{2}$/;
+      var regEx = /^(\d{4}-\d{2}-\d{2})+(T(00|:)+)*$/;
 
       // Invalid format
       if (!dateString.match(regEx))
@@ -94,7 +94,7 @@ export default {
       if (!dNum && dNum !== 0)
         return false;
 
-      return d.toISOString().slice(0, 10) === dateString;
+      return true;
     },
     checkValidity(newValue, oldValue) {
       let validationError = null;
