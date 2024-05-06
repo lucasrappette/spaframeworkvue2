@@ -1,5 +1,30 @@
 <template>
   <div>
+    <b-row v-if="summaryTableSettings">
+        <b-col>
+          <b-table bordered :items="summaryItems" :fields="summaryTableSettings.summaryHeadings" head-variant="light">
+            <template #thead-top>
+              <b-tr>
+                <b-th :colspan="summaryTableSettings.summaryColumns.length + 1">{{ summaryTableSettings.headerName }}</b-th>
+              </b-tr>
+            </template>
+          <template #cell(details)="row">
+            <b-button @click="row.toggleDetails()">Details</b-button>
+          </template>
+
+          <template v-slot:row-details="row">
+            <b-table :items="row.item.details" :fields="summaryTableSettings.subSummaryHeadings">
+              <template #cell(details)="row">
+                <b-button @click="row.toggleDetails()">Details</b-button>
+              </template>
+              <template v-slot:row-details="row">
+                <b-table :items="row.item.details"></b-table>
+              </template>
+            </b-table>
+          </template>
+        </b-table>
+        </b-col>
+    </b-row>
     <b-row v-if="!settings.hideToolbar">
       <b-col>
         <span class="float-right pt-2">
@@ -77,6 +102,10 @@
           <b-button-group class="ml-2" v-if="settings.manuallyApplyFilters">
             <b-button :disabled="!manuallyApplyFiltersReady" @click="applyFilters">Apply Filters</b-button>
           </b-button-group>
+          <b-button-group v-if="settings.modifyDataButton" class="ml-2">
+            <b-button class="mr-2" @click="actionButtonClicked"><b-icon icon="pencil-square" />{{ settings.modifyDataButton.name }}</b-button>
+            <text-control v-if="settings.modifyDataButton.showTextInput" :label="settings.modifyDataButton.textInputLabel" v-model="settings.modifyDataButton.textInputValue"></text-control>
+          </b-button-group>
           <slot name="extraButtons"></slot>
         </b-button-toolbar>
         <div v-if="isQueryMode" class="mb-3">
@@ -125,16 +154,16 @@
                 <b-form-input v-model="filters[column.key]" v-if="!column.hideFilter && getFilterType(column) == 'number'" type="number" @keyup="onFilterKeyUp"></b-form-input>
                 <b-form-input v-model="filters[column.key]" v-if="!column.hideFilter && getFilterType(column) == 'date'" type="date" @change="refreshData(true, true)"></b-form-input>
                 <b-form-select v-model="filters[column.key]" v-if="!column.hideFilter && getFilterType(column) == 'select'" :options="column.selectOptions" @change="refreshData(false, true)"></b-form-select>
-                <b-row v-if="!column.hideFilter && getFilterType(column) == 'daterange'">
-                  <b-col xs="12" md="6">
+                <b-row v-if="!column.hideFilter && (getFilterType(column) == 'daterange' || getFilterType(column) == 'daterangenullable')">
+                  <b-col xs="12" md="12">
                     <b-form-input v-if="filters[column.key]" v-model="filters[column.key].low" type="date" @change="refreshData(false, true)"></b-form-input>
                   </b-col>
-                  <b-col xs="12" md="6">
+                  <b-col xs="12" md="12">
                     <b-form-input v-if="filters[column.key]" v-model="filters[column.key].high" type="date" @change="refreshData(false, true)"></b-form-input>
                   </b-col>
                 </b-row>
 
-                <b-form-group v-if="!column.hideFilter && getFilterType(column) == 'multiselect'">
+                <b-form-group v-if="!column.hideFilter && (getFilterType(column) == 'multiselect' || getFilterType(column) == 'multiselectnomultirelationship')">
                   <b-form-tags v-model="filters[column.key]" add-on-change no-outer-focus class="multiselect" @input="multiSelectUpdated">
                     <template v-slot="{ tags, inputAttrs, inputHandlers, disabled, addTag, removeTag }">
                       <ul v-if="tags.length > 0" class="list-inline d-inline-block mb-2">
@@ -177,7 +206,14 @@
           </b-thead>
           <b-tbody v-if="!refreshingData">
             <b-tr v-for="(item, index) in items" v-bind:key="index" @click="rowClicked(item, index)">
-              <b-td v-for="column in visibleColumns" v-bind:key="column.key" v-html="highlightSearchTerms(item[column.key], column.key)" :variant="getVariant(index, column.key)">
+              <b-td v-for="column in visibleColumns" v-bind:key="column.key" :variant="getVariant(index, column.key)">
+                <div v-if="column.type != 'navButton' && column.type != 'externalLinkBtn' && column.type != 'deleteRowButton' && column.type != 'checkbox'" v-html="highlightSearchTerms(item[column.key], column.key)" />
+                <div @click.stop>
+                <b-button v-if="column.type == 'navButton'" @click="$router.push(item[column.key])">{{ column.name }}</b-button>
+                <b-button v-if="column.type == 'externalLinkBtn'" @click.stop="onExternalLink(item[column.key], index)" :disabled="disableExternalLink(item)">{{ column.name }}</b-button>
+                <b-button v-if="column.type == 'deleteRowButton'" @click.stop="deleteRow(index)" :disabled="disableDeleteRowButton(item)" >{{ column.name }}</b-button>
+                <b-checkbox v-if="column.type == 'checkbox'" @change="onChecked(item, index)" class="listCheckboxes"></b-checkbox>
+                </div>
               </b-td>
             </b-tr>
           </b-tbody>
@@ -213,6 +249,11 @@
         <text-control v-model="saveViewName" label="Name" />
       </div>
     </b-modal>
+    <b-modal id="modalDeleteRow" @ok="onDeleteRow" ok-variant="primary" ok-title="Delete Row">
+      <template #modal-title>
+        Delete Row
+      </template>
+    </b-modal>
   </div>
 </template>
 
@@ -223,8 +264,48 @@ import { saveAs } from 'file-saver';
 import { mapState, mapGetters } from 'vuex'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
+import TextControl from '../Controls/TextControl.vue';
 
 const columnTypes = {
+  navButton: {
+    filterType: 'text',
+    render: (value, row, col) => {
+      return col.routePrepend + value + col.routeAppend;
+    },
+    apply: (value, col) => {
+      return null;
+    }
+  },
+  externalLinkBtn: {
+    filterType: 'text',
+    render: (value, row, col) => {
+      if(value == null){
+        return null
+      }
+      return col.routePrepend + value + col.routeAppend;
+    },
+    apply: () => {
+      return null;
+    }
+  },
+  deleteRowButton: {
+    filterType: 'text',
+    render: (value, row, col) => {
+      return null;
+    },
+    apply: () => {
+      return null;
+    }
+  },
+  checkbox: {
+    filterType: 'select',
+    render: () => {
+      return null;
+    },
+    apply: () => {
+      return null;
+    }
+  },  
   multitext: {
     filterType: 'multitext',
     render: (value, row, col) => {
@@ -262,16 +343,28 @@ const columnTypes = {
       else
         return col.key + '.StartsWith("' + value + '")';
     },
+    // highlight: (terms, value, col) => {
+    //   let v = value;
+    //   terms.forEach(term => {
+    //     let esc = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+    //     let re = new RegExp(esc, "gi");
+    //     v = v.replace(re, '<span class="bg-info">$&</span>');
+    //   });
+
+    //   return v;
+    // },
     highlight: (terms, value, col) => {
       let v = value;
-      terms.forEach(term => {
-        let esc = term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-        let re = new RegExp(esc, "gi");
-        v = v.replace(re, '<span class="bg-info">$&</span>');
-      });
+      let combinedTermsRegex = terms.map(term => {
+        return term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      }).join('|'); // Combine all terms into a single regex pattern
+
+      let re = new RegExp("(" + combinedTermsRegex + ")", "gi");
+      v = v.replace(re, '<span class="bg-info">$1</span>');
 
       return v;
     },
+
     search: (term, col) => {
       return col.key + '.Contains("' + term + '")';
     }
@@ -397,7 +490,7 @@ const columnTypes = {
       let d = DateTime.fromISO(value).plus({ days: 1});
       let e = DateTime.fromISO(value);
       // This uses UTC -- ideally, we'd switch this to use the locale offset, like we do when rendering
-      return col.key + '>="' + e.toFormat('yyyy-MM-dd') + tzoffset + '" and ' + col.key + '<"' + d.toFormat('yyyy-MM-dd') + tzoffset + '"';
+      return col.key + '>="' + e.toFormat('yyyy-MM-dd') + tzoffset + '" and ' + col.key + '<="' + d.toFormat('yyyy-MM-dd') + tzoffset + '"';
     }
   },
   datetimeoffset: {
@@ -437,13 +530,74 @@ const columnTypes = {
       if (value.low && value.high) {
         let l = DateTime.fromISO(value.low);
         let h = DateTime.fromISO(value.high).plus({ days: 1});
-        return col.key + '>="' + l.toFormat('yyyy-MM-dd') + '" and ' + col.key + '<"' + h.toFormat('yyyy-MM-dd') + '"';
+        return col.key + '>="' + l.toFormat('yyyy-MM-dd') + '" and ' + col.key + '<="' + h.toFormat('yyyy-MM-dd') + '"';
       } else if (value.low) {
         let l = DateTime.fromISO(value.low);
         return col.key + '>="' + l.toFormat('yyyy-MM-dd') + '"';
       } else if (value.high) {
         let h = DateTime.fromISO(value.high).plus({ days: 1});
-        return col.key + '<"' + h.toFormat('yyyy-MM-dd') + '"';
+        return col.key + '<="' + h.toFormat('yyyy-MM-dd') + '"';
+      } else return '';
+    },
+    getSqlParams: (value, lowKeyName, highKeyName) => {
+      if (value.low && value.high) {
+        let l = DateTime.fromISO(value.low);
+        let h = DateTime.fromISO(value.high).plus({ days: 1});
+        return [
+          {
+            argumentName: lowKeyName,
+            value: l.toFormat('yyyy-MM-dd'),
+          },
+          {
+            argumentName: highKeyName,
+            value: h.toFormat('yyyy-MM-dd')
+          }
+        ];
+      } else if (value.low) {
+        let l = DateTime.fromISO(value.low);
+        return [
+          {
+            argumentName: lowKeyName,
+            value: l.toFormat('yyyy-MM-dd'),
+          },
+        ];
+      } else if (value.high) {
+        let h = DateTime.fromISO(value.high).plus({ days: 1});
+        return [
+          {
+            argumentName: highKeyName,
+            value: h.toFormat('yyyy-MM-dd')
+          }
+        ];
+      } else return '';
+    }
+  },
+  daterangenullable: {
+    filterType: 'daterangenullable',
+    init: () => {
+      return {
+        low: null,
+        high: null
+      };
+    },
+    render: (value, row, col) => {
+      if (!value)
+        return '';
+        
+      let dt = DateTime.fromISO(value);
+      return dt.toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY);
+    },
+    apply: (value, col) => {
+      if (value.low && value.high) {
+        let l = DateTime.fromISO(value.low);
+        let h = DateTime.fromISO(value.high);//.plus({ days: 1});
+        return '((' + col.key + '>="' + l.toFormat('yyyy-MM-dd') + '" and ' + col.key + '<="' + h.toFormat('yyyy-MM-dd') + '") or ' + col.key + ' == null' + ')';
+      } else if (value.low) {
+        let l = DateTime.fromISO(value.low);
+        return '((' + col.key + '>="' + l.toFormat('yyyy-MM-dd') + '") or ' + col.key + ' == null' + ')';
+      } else if (value.high) {
+        let h = DateTime.fromISO(value.high).plus({ days: 1});
+        return '((' + col.key + '<="' + h.toFormat('yyyy-MM-dd') + '") or ' + col.key + ' == null' + ')';
       } else return '';
     }
   },
@@ -484,6 +638,19 @@ const columnTypes = {
       let b = value.map(x => col.key + '.Any(x => x.' + col.filterSelector + '="' + x + '")');
       return '(' + b.join(' OR ') + ')';
     }
+  },
+  multiselectnomultirelationship: {
+    filterType: 'multiselectnomultirelationship',
+    render: (value, row, col) => {
+      return value;
+    },
+    apply: (value, col) => {
+      if (!Array.isArray(value) || value.length == 0)
+        return null;
+
+      let b = value.map(x => col.key + ' == "' + x + '"');
+      return '(' + b.join(' OR ') + ')';
+    }
   }
 }
 
@@ -493,7 +660,21 @@ export default {
     settings: {
       type: Object
     },
-    defaultFilters: {}
+    defaultFilters: {},
+    summaryTableSettings: {
+      type: Object,
+      require: false
+    },
+    disableDeleteRowButton: {
+      type: Function,
+      // Default function that always returns false
+      default: () => () => false,
+    },
+    disableExternalLink: {
+      type: Function,
+      // Default function that always returns false
+      default: () => () => false,
+    }
   },
   data() {
     return {
@@ -522,10 +703,12 @@ export default {
       showQueryModeHelp: false,
       views: [],
       saveViewName: 'New View',
+      deleteRowIndex: null,
       activeViewName: null,
       manuallyApplyFiltersReady: false,
       isWaitingForFilterForResults: false,
-      autoSaveDefaultView: false
+      autoSaveDefaultView: false,
+      summaryItems: []
     }
   },
   computed: {
@@ -718,12 +901,18 @@ export default {
             var FileSaver = require('file-saver');
             FileSaver.saveAs(blob, "export.csv");
           } else if (fileType == 'PDF' || fileType == 'ViewPDF') {
-            let head = [];
-            let body = [];
+            let head1 = [];
+            let body1 = [];
+
+            let summaryHead = [];
+            let summaryBody = [];
+
+            let subSummaryHead = [];
+            let subSummaryBody = [];
 
             this.settings.columns.forEach(col => {
               if (this.visible[col.key])
-                head.push(col.name);
+                head1.push(col.name);
             });
 
             exportItems.forEach(row => {
@@ -733,14 +922,75 @@ export default {
                   cols.push(this.getCellValue(row, col));
               });
 
-              body.push(cols);
+              body1.push(cols);
             });
 
-            let doc = new jsPDF('l', 'in', [8.5, 11], true);
+            if(this.summaryTableSettings)
+            {
+              this.summaryTableSettings.summaryColumns.forEach(col => {
+                summaryHead.push(col.name);
+              });
+            
+
+              this.summaryItems.forEach(row => {
+                let cols = [];
+                this.summaryTableSettings.summaryHeadings.forEach(col =>
+                {
+                  if(col != 'details')
+                  {
+                    cols.push(row[col]);
+                  }
+                });
+
+                summaryBody.push(cols);
+              });
+              if(this.summaryTableSettings.subSummaryColumns)
+              {
+                this.summaryTableSettings.subSummaryColumns.forEach(col => {
+                  subSummaryHead.push(col.name);
+                });
+
+                this.summaryItems.forEach(parentRow => {
+                  parentRow.details.forEach(row => 
+                  {
+                    let cols = [];
+                    this.summaryTableSettings.subSummaryHeadings.forEach(col =>
+                    {
+                      if(col != 'details')
+                      {
+                        cols.push(row[col]);
+                      }
+                    });
+                    subSummaryBody.push(cols);
+                  });
+
+                });
+              }
+            }
+
+            let doc = new jsPDF('p', 'in', [8.5, 11], true);
 
             doc.autoTable({
-              head: [head],
-              body: body,
+              head: [summaryHead],
+              body: summaryBody,
+              styles: {
+                font: 'Helvetica',
+                fontSize: 9
+              }
+            });
+
+            doc.autoTable({
+              head: [subSummaryHead],
+              body: subSummaryBody,
+              styles: {
+                font: 'Helvetica',
+                fontSize: 9
+              }
+            });
+
+             doc.autoTable({
+              head: [head1],
+              body: body1,
               styles: {
                 font: 'Helvetica',
                 fontSize: 9
@@ -816,9 +1066,31 @@ export default {
     newClicked: function () {
       this.$emit('newClicked', this.filters);
     },
+    actionButtonClicked: function() {
+      this.$emit('actionButtonClicked', this.filters, this.getFilterUrlComponent(), this.settings.modifyDataButton.textInputValue);
+    },
     rowClicked: function (item, index) {
       let rawItem = this.rawItems[index];
-      this.$emit('rowClicked', rawItem);
+      this.$emit('rowClicked', rawItem, index);
+    },
+    deleteRow: function(index){
+      //popup modal for confirmation
+      this.deleteRowIndex = index;
+      this.$bvModal.show('modalDeleteRow');
+    },
+    onChecked: function(item, index){
+      //make sure that you add functionality to remove boxes which are unchecked
+      let rawItem = this.rawItems[index];
+      this.$emit('onChecked', rawItem, index);
+    },
+    onDeleteRow: function(){
+      let index = this.deleteRowIndex;
+      let rawItem = this.rawItems[index];
+      this.$emit("deleteRow", rawItem);
+    },
+    onExternalLink: function(item, index){
+      let rawItem = this.rawItems[index];
+      this.$emit("onExternalLink", rawItem, item);
     },
     toggleColumn: function (column) {
       this.visible[column.key] = !this.visible[column.key];
@@ -961,6 +1233,76 @@ export default {
         filters.push(this.settings.getDefaultFilter());
 
       filters = this.pushFilters(filters);
+
+      let filter = filters.filter(f => f.length > 0).join(' AND ');
+      return filter;
+    },
+    pushSummaryFilters: function (filters) {
+      if(this.summaryTableSettings.summaryEndPointDefaultFilter)
+      {
+        filters.push(this.summaryTableSettings.summaryEndPointDefaultFilter);
+      }
+      this.settings.columns.forEach(col => {
+        let f = this.filters[col.key];
+        if (f === undefined || f === null)
+          return;
+
+        let c = this.getColumnType(col);
+        let r = null;
+
+        if (col.filterFormatter)
+          f = col.filterFormatter(f, col);
+
+        if (col.customFilter)
+          r = col.customFilter(f, col);
+        else
+          r = c.apply(f, col);
+
+        if (r !== null && this.summaryTableSettings.summaryEndPointTableFilters.includes(col.key))
+          filters.push(r);
+        });
+      
+      return filters;
+    },
+    getSummaryFilterUrlComponent: function () {
+      let filters = [];
+
+      filters = this.pushSummaryFilters(filters);
+
+      let filter = filters.filter(f => f.length > 0).join(' AND ');
+      return filter;
+    },
+    pushSubSummaryFilters: function (filters) {
+      if(this.summaryTableSettings.subSummaryEndPointDefaultFilter)
+      {
+        filters.push(this.summaryTableSettings.subSummaryEndPointDefaultFilter);
+      }
+      this.settings.columns.forEach(col => {
+        let f = this.filters[col.key];
+        if (f === undefined || f === null)
+          return;
+
+        let c = this.getColumnType(col);
+        let r = null;
+
+        if (col.filterFormatter)
+          f = col.filterFormatter(f, col);
+
+        if (col.customFilter)
+          r = col.customFilter(f, col);
+        else
+          r = c.apply(f, col);
+
+        if (r !== null && this.summaryTableSettings.subSummaryEndPointTableFilters.includes(col.key))
+          filters.push(r);
+        });
+      
+      return filters;
+    },
+    getSubSummaryFilterUrlComponent: function () {
+      let filters = [];
+
+      filters = this.pushSubSummaryFilters(filters);
 
       let filter = filters.filter(f => f.length > 0).join(' AND ');
       return filter;
@@ -1123,6 +1465,7 @@ export default {
       axios
         .get(url)
         .then(response => {
+          
           // This isn't the most recent refresh request, so don't bother doing anything with it
           if (this.refreshDataTime != refreshDataTime)
             return;
@@ -1132,6 +1475,16 @@ export default {
           this.totalMax = response.headers['x-total-count-max'];
           this.dataError = null;
 
+          //SummaryTable endpoints refresh here
+          //Could make summaryTableSettings an array of tables, I thought two summary levels was enough but you can improve at sacrifice of UI
+
+          if(this.summaryTableSettings)
+          {
+            if(this.summaryTableSettings.summaryEndPoint)
+            {
+              this.refreshSummaryTableData();
+            }
+          }
           this.$emit('itemsLoaded', this.rawItems);
 
           this.refreshItems(true);
@@ -1151,6 +1504,156 @@ export default {
 
           this.refreshingData = false;
         });
+    },
+    // This could really use some promise chaining, but I am afraid that would make the code
+    //  unclear with the amount of abstraction that would be needed for all of the additional utility methods called.
+    //  Additionally, I'd really question anyone why you would ever need 3+ hybrid relational tables on the same page
+    refreshSummaryTableData: function ()
+    {
+      let axiosRequest = {};
+      axiosRequest.url = this.summaryTableSettings.summaryEndPoint;
+      axiosRequest.method = this.summaryTableSettings.summaryHttpRequestType;
+      //We're basically doing another standard filter table call
+      if(this.summaryTableSettings.summaryHttpRequestType === 'get')
+      {
+          let filter = this.getSummaryFilterUrlComponent();
+          axiosRequest.url += '?filter=' + encodeURIComponent(filter);
+      }
+      //We're posting to a stored proc using filters below
+      //Any desired filters must be passed as sql parameters, otherwise a non-composable exception will be thrown
+      else if(this.summaryTableSettings.summaryHttpRequestType === 'post')
+      {
+        let postBody = {};
+        postBody.filter = this.getSummaryFilterUrlComponent();
+        postBody.includes = '';
+        postBody.procedureName = this.summaryTableSettings.summaryProcedureName;
+        postBody.procArguments = [];
+        postBody.context = "WebApiElevated";
+        this.summaryTableSettings.summaryProcedureArguments.forEach((arg, index) => {
+          //Future versions will move this logic to another method like the filters are in
+          //Does this filter have a default value supplied?
+          if(arg.value != null)
+          {
+            postBody.procArguments.push({
+              argumentName: arg.key,
+              value: arg.value
+            });
+          }
+          //If not, look up it's value from the table filters
+          else {
+            var tableCol = this.settings.columns.filter(c => c.key == arg.key)[0];
+            let f = this.filters[arg.key];
+            if (f === undefined || f === null)
+              return;
+
+            let c = this.getColumnType(tableCol);
+            if(c.filterType == 'daterange' || c.filterType == 'daterangenullable')
+              postBody.procArguments.push(...c.getSqlParams(f, arg.lowKeyName, arg.highKeyName));
+            else
+              postBody.procArguments.push(...c.getSqlParams(f, arg.keyName));
+          }
+        });
+        axiosRequest.data = postBody;
+      }
+        return axios.request(axiosRequest)
+        .then((response, callback) =>
+        { 
+          this.summaryItems = [];
+            response.data.forEach((dataRow, index) => {
+              let newRow = {};
+              this.summaryTableSettings.summaryColumns.forEach((summaryCol, index) => {
+                let rowProp = this.summaryTableSettings.summaryHeadings[index];
+                ///////////
+                //TODO test
+                ///////////
+                let formatCurrency = function(value) {
+                  if (!value) return '';
+                  var formatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD', // Adjust currency as needed
+                  });
+                  return formatter.format(value);
+                }
+                let cellValue = dataRow[summaryCol.key];
+                 // Check if the column is a number and has a specific format
+                if(summaryCol.type === 'number' && summaryCol.numberFormat === 'currency') {
+                  // Apply currency formatting
+                  cellValue = formatCurrency(cellValue); // Implement formatCurrency function
+                  newRow[rowProp] = cellValue;
+                }
+                else{
+                  newRow[rowProp] = dataRow[this.summaryTableSettings.summaryColumns[index].key];
+                }
+                //////////////
+                //TODO testend
+                //replaces line below
+                //////////////
+                //newRow[rowProp] = dataRow[this.summaryTableSettings.summaryColumns[index].key];
+                if(this.summaryTableSettings.subSummaryEndPoint)
+                  newRow.details = [];
+              });
+              this.summaryItems.push(newRow);
+            });
+            if(this.summaryTableSettings.subSummaryEndPoint)
+            {
+              let axiosSubRequest = {};
+              axiosSubRequest.url = this.summaryTableSettings.subSummaryEndPoint;
+              axiosSubRequest.method = this.summaryTableSettings.subSummaryHttpRequestType;
+              //We're basically doing another standard filter table call
+              if(this.summaryTableSettings.subSummaryHttpRequestType === 'get')
+              {
+                  let filter = this.getSubSummaryFilterUrlComponent();
+                  axiosSubRequest.url += '?filter=' + encodeURIComponent(filter);
+              }
+              //We're posting to a stored proc using filters below
+              else if(this.summaryTableSettings.subSummaryHttpRequestType === 'post')
+              {
+                let postBody = {};
+                postBody.filter = this.getSubSummaryFilterUrlComponent();
+                postBody.includes = '';
+                postBody.procedureName = this.summaryTableSettings.subSummaryProcedureName;
+                postBody.procArguments = [];
+                postBody.context = "WebApiElevated";
+                this.summaryTableSettings.subSummaryProcedureArguments.forEach((arg, index) => {
+                  //Future versions will move this logic to another method like the filters are in
+                  //Does this filter have a default value supplied?
+                  if(arg.value != null)
+                  {
+                    postBody.procArguments.push({
+                      argumentName: arg.key,
+                      value: arg.value
+                    });
+                  }
+                  //If not, look up it's value from the table filters
+                  else {
+                    var tableCol = this.settings.columns.filter(c => c.key == arg.key)[0];
+                    let f = this.filters[arg.key];
+                    if (f === undefined || f === null)
+                      return;
+
+                    let c = this.getColumnType(tableCol);
+                    if(c.filterType == 'daterange' || c.filterType == 'daterangenullable')
+                      postBody.procArguments.push(...c.getSqlParams(f, arg.lowKeyName, arg.highKeyName));
+                    else
+                      postBody.procArguments.push(...c.getSqlParams(f, arg.keyName));
+                  }
+                });
+                axiosSubRequest.data = postBody;
+              }
+                return axios.request(axiosSubRequest)
+                .then((response, callback) =>
+                { 
+                  response.data.forEach((dataRow, index) => {
+                    let newRow = {};
+                    this.summaryTableSettings.subSummaryColumns.forEach((summaryCol, index) => {
+                      let rowProp = this.summaryTableSettings.subSummaryHeadings[index];
+                      newRow[rowProp] = dataRow[this.summaryTableSettings.subSummaryColumns[index].key];
+                    });
+                    this.summaryItems[0].details.push(newRow);
+                  });
+                });
+        }
+      });
     }
   },
   mounted () {

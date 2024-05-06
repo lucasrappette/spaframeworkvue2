@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SpaFramework.App.Services.Data;
 using SpaFramework.App.DAL;
 using SpaFramework.App.Models.Data;
 using SpaFramework.App.Models.Data.Accounts;
@@ -93,6 +94,14 @@ namespace SpaFramework.App
             where TService : class, IEntityListService<TDataModel>
         {
             services.AddTransient<IEntityListService<TDataModel>, TService>();
+            services.AddTransient<TService, TService>();
+        }
+
+        private static void AddTransientProcedureService<TDataModel, TService>(this IServiceCollection services)
+            where TDataModel : class, IEntity
+            where TService : class, IEntityProcedureService<TDataModel>
+        {
+            services.AddTransient<IEntityProcedureService<TDataModel>, TService>();
             services.AddTransient<TService, TService>();
         }
 
